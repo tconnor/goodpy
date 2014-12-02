@@ -1,5 +1,6 @@
 import os
 import shutil
+import glob
 
 def make_directory(direc,silent=False,force_overwrite=True,notify=False,outmessage='Directory Created',append_dir=False):
     '''Makes a directory at location "direc"
@@ -45,4 +46,16 @@ def make_directory(direc,silent=False,force_overwrite=True,notify=False,outmessa
         print outmessage
     return
         
-        
+def get_file_list(searchstr='*.fits'):
+    '''Gets a file list from the current directory
+    Arguments:
+        searchstr: The string to be searched by glob (Default='*.fits')'''
+    file_list = glob.glob('*.fits')
+    return file_list
+
+def move_file_list(movelist,movedir):
+    '''Moves all files in a list to another directory'''
+    for f in movelist:
+        shutil.move(f,movedir)
+    return
+
