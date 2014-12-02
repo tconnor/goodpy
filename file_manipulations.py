@@ -59,3 +59,13 @@ def move_file_list(movelist,movedir):
         shutil.move(f,movedir)
     return
 
+def move_file(movefile,movedir):
+    shutil.move(movefile,movedir)
+    return
+
+def copy_file_list(movelist,movedir):
+    '''Copies all files in a list to another directory'''
+    for f in movelist:
+        shutil.copy2(f,movedir)
+    return
+
