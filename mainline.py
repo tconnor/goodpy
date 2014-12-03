@@ -4,12 +4,11 @@ def main():
     file_list = f_man.get_file_list(searchstr='*.fits')
     obj_list = [ftl.observation_type(ff) for ff in file_list]
     f_man.make_directory('RAW',force_overwrite=False)
-    f_man.copy_list(file_list,'RAW')
+    f_man.copy_file_list(file_list,'RAW')
     f_man.make_directory('FOCUS',force_overwrite=False)
     for file,obj in zip(file_list,obj_list):
         if obj=='focus':
             f_man.move_file(file,'FOCUS')
-
     f_man.make_directory('FINDING',force_overwrite=False)
     for file,obj in zip(file_list,obj_list):
         if obj=='slit' or obj=='img':
