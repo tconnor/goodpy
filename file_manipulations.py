@@ -69,3 +69,25 @@ def copy_file_list(movelist,movedir):
         shutil.copy2(f,movedir)
     return
 
+def first_movement(file_list,typedict,force_overwrite=False):
+    '''Relocates observations to initial folders.
+    Parameters
+        force_overwrite -- flag to be passed to make_directory'''
+    make_directory('RAW',force_overwrite=force_overwrite)
+    copy_file_list(file_list,'RAW')
+    make_directory('FOCUS',force_overwrite=force_overwrite)
+    make_directory('FINDING',force_overwrite=force_overwrite)
+    make_directory('FOCUS',force_overwrite=force_overwrite)
+    for file in file_list:
+        obs = file.split('.')[0]
+        if typedict[obs]=='focus':
+            f_man.move_file(file,'FOCUS')
+        elif obj=='slit' or obj=='img':
+            f_man.move_file(file,'FINDING')
+        elif obj=='focus':
+            f_man.move_file(file,'FOCUS')
+        else:
+            pass
+    return
+
+
