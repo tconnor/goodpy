@@ -30,6 +30,7 @@ def fix_header(inhead):
     ii = 0
     while contin:
         try:
+            inhead.comments[ii] = inhead.comments[ii].replace('?','')
             inhead.comments[ii] = inhead.comments[ii].replace('\xb0','')
             ii +=1
         except IndexError:
@@ -42,7 +43,16 @@ def cut_dimension(fitsfile,fix_header=True):
     fix_header -- Apply header correction to fix '?'s in header comments (default = True) '''
     hdulist = pf.open(fitsfile,mode='update')
     if fix_header: hdulist[0].header = fix_header(hdulist[0].header)
+    hdulist[0].header = wcs_reset(hdulist[0].header)
+    hdulist[0].header['EPOCH'] = 2000
     hdulist[0].data = hdulist[0].data[0]
     hdulist.flush()
     hdulist.close()
     return
+
+def wcs_reset(header):
+    del header['WAXMAP01']
+    del header['LTM3_3']
+    del header['WAT3_001']
+    header['WCSDIM'] = 2
+    return header
