@@ -90,4 +90,19 @@ def first_movement(file_list,typedict,force_overwrite=False):
             pass
     return
 
-
+def type_list(file_list,typedict):
+    '''Returns three lists of quartz, calib, and object observations.
+    Outputs -- quartz_list, calib_list, science_list'''
+    quartz_list, calib_list, science_list = [],[],[]
+    for ff in file_list:
+        exposure = ff.split('.')[0]
+        exp_type = typedict[exposure]
+        if exp_type == 'fear':
+            calib_list.append(ff)
+        elif exp_type =='qtz':
+            quartz_list.append(ff)
+        elif exp_type == 'obj':
+            science_list.append(ff)
+        else:
+            pass
+    return quartz_list, calib_list, science_list

@@ -11,7 +11,7 @@ def main():
     file_list = f_man.get_file_list(searchstr='*.fits')
     for file in file_list:
         irf_stp.reduce_dimensions(file)
-
+    quartz_list, calib_list, science_list = f_man.type_list(file_list,typedict)
     
 if __name__ == '__main__':
     main()
