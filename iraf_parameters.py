@@ -58,7 +58,7 @@ def set_identify_calibration(identify):
 
 def set_reidentify_calibration(reidentify):
     #noao>twodspec>longslit>reidentify
-    reidentify.interac = 'No'
+    reidentify.interac = 'no'
     reidentify.section = 'middle line'
     reidentify.newaps = 'Yes'
     reidentify.overrid = 'Yes'
@@ -113,7 +113,7 @@ def set_identify_standard(identify):
 
 def set_reidentify_standard(reidentify):
     #noao>twodspec>longslit>reidentify
-    reidentify.interac = 'No'
+    reidentify.interac = 'no'
     reidentify.section = 'middle line'
     reidentify.newaps = 'Yes'
     reidentify.overrid = 'Yes'
@@ -170,7 +170,7 @@ def set_apall(apall):
     apall.upper = 70
     apall.b_funct = 'chebyshev'
     apall.b_order = 1
-    apall.b_sampl = -150:-100,100:150
+    apall.b_sampl = '-150:-100,100:150'
     apall.b_naver = -100
     apall.b_niter = 0
     apall.b_low_r = 3
@@ -220,7 +220,7 @@ def set_standard(standard):
     standard.airmass = ''
     standard.exptime = ''
     standard.mag = ''
-    standard.magband = ''
+    standard.magband = None
     standard.teff = ''
     return
 
