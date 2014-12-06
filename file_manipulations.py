@@ -81,21 +81,22 @@ def first_movement(file_list,typedict,force_overwrite=False):
     for file in file_list:
         obs = file.split('.')[0]
         if typedict[obs]=='focus':
-            f_man.move_file(file,'FOCUS')
-        elif obj=='slit' or obj=='img':
-            f_man.move_file(file,'FINDING')
-        elif obj=='focus':
-            f_man.move_file(file,'FOCUS')
+            move_file(file,'FOCUS')
+        elif typedict[obs]=='slit' or typedict[obs]=='img':
+            move_file(file,'FINDING')
+        elif typedict[obs]=='focus':
+            move_file(file,'FOCUS')
         else:
             pass
     return
 
-def type_list(file_list,typedict):
+def type_list(file_list,typedict,ignore=''):
     '''Returns three lists of quartz, calib, and object observations.
     Outputs -- quartz_list, calib_list, science_list'''
     quartz_list, calib_list, science_list = [],[],[]
     for ff in file_list:
         exposure = ff.split('.')[0]
+        exposure.replace(ignore,'')
         exp_type = typedict[exposure]
         if exp_type == 'fear':
             calib_list.append(ff)
@@ -106,3 +107,15 @@ def type_list(file_list,typedict):
         else:
             pass
     return quartz_list, calib_list, science_list
+
+def prepend_list(in_list,prefix):
+    for ii in range(len(in_list)):
+        in_list[ii] = prefix+ str(in_list[ii])
+    return in_list
+
+def make_and_move(move_list,folder_name):
+    '''Moves all the files in move_list to folder_name, which is also created.'''
+    make_directory(folder_name,silent=False,force_overwrite=True,notify=False,outmessage='Directory Created',append_dir=False)
+    move_file_list(move_list,folder_name)
+    return
+

@@ -27,7 +27,7 @@ def set_response(response):
     response.interac = 'Yes'
     response.naverag = 1
     response.function = 'spline3'
-    response.order = 6
+    response.order = 15
     response.low_rej = 0
     response.high_re = 0
     response.niterat = 1
