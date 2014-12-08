@@ -20,6 +20,7 @@ def set_ccdproc(ccdproc):
     ccdproc.low_rej = 3
     ccdproc.high_re = 3
     ccdproc.grow = 0
+    ccdproc.ccdtype = ''
     return
 
 def set_response(response):

@@ -96,7 +96,7 @@ def type_list(file_list,typedict,ignore=''):
     quartz_list, calib_list, science_list = [],[],[]
     for ff in file_list:
         exposure = ff.split('.')[0]
-        exposure.replace(ignore,'')
+        exposure = exposure.replace(ignore,'')
         exp_type = typedict[exposure]
         if exp_type == 'fear':
             calib_list.append(ff)
