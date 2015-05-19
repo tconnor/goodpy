@@ -18,6 +18,14 @@ def main():
     quartz_list, calib_list, science_list = f_man.type_list(file_list,typedict,ignore='b')
     irf_stp.normalize_quartzes(quartz_list)
     f_man.make_and_move(quartz_list,'BIAS')
-    
+    #science_list = f_man.prepend_list(science_list,'f')
+    #get the arc images needed
+    #irf_stp.identify
+    #irf_stp.make_lambda_solution
+    #f_man.make_and_move(calib_list,'CALIB')
+    #irf_stp.standard_trace
+    #irf_stp.transform(science_list)
+    #science_list = f_man.prepend_list(science_list,'t')
+
 if __name__ == '__main__':
     main()
