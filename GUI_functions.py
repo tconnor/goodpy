@@ -53,73 +53,7 @@ def find_match(principle, associate,title='GUI',caption_tail=' Selection'):
     return outdict
 
 
-
-instruments = ['guitars', 'keys', 'drums', 'bass', 'harp']
-musicians = ['john', 'paul', 'george', 'ringo']
-find_match(musicians,instruments)
-
-
-    #For each principle
-    #Make a Gui
-    #And in this gui place all the associates
-    #Display the Gui, letting the user abort it
-    #Check that at least one object is checked
-    #If not, reset
-    #Then, write all selected objects to the output list
-
-                
-for poss in posslist:
-    score_dict = go_gui.add_checkbox(win,poss,score_dict)
-
-scoredict = {}
-win = Tkinter.Tk()
-go_gui = GoodPyGUI(win)
-posslist = ['keys', 'guitar', 'drums', 'bass', 'tuba', 'horn', 'harp']
-
-for poss in posslist:
-    scoredict = go_gui.add_checkbox(win,poss,scoredict)
-
-
-go_gui.add_close_button(win)
-scoredict['drums'].get()
-#scoredict = go_gui.add_checkbox(win,'test1',scoredict)
-#scoredict = go_gui.add_checkbox(win,'test2',scoredict)
-
-#scoredict['test1'].get()
-#win.mainloop()
-#chk = Tkinter.Checkbutton(win,text='Goo',variable=scoredict[boxname])
-
-
-
-scoredict = {}
-win = Tkinter.Tk()
-go_gui = GoodPyGUI(win)
-vars = []
-for poss in posslist:
-    var = Tkinter.IntVar()
-    chk = Tkinter.Checkbutton(win,text=poss,variable=var)
-    chk.pack()
-    vars.append(var)
-
-
-
-
-go_gui.add_close_button(win)
-
-import Tkinter
-root = Tkinter.Tk()
-var = Tkinter.IntVar()
-chk = Tkinter.Checkbutton(root,text='foo',variable=var)
-chk.pack(side=Tkinter.LEFT)
-
-var.get()
-root = Tkinter.Tk()
-var = Tkinter.IntVar()
-chk = Tkinter.Checkbutton(root,text='foo',variable=var)
-chk.pack(side=Tkinter.LEFT)
-root.mainloop()
-
-win = Tkinter.Tk()
-foo = Tkinter.IntVar()
-checkbutton = Tkinter.Checkbutton(win,text='foo',variable=foo)
-checkbutton.pack()
+def test_routine():
+    instruments = ['guitars', 'keys', 'drums', 'bass', 'harp']
+    musicians = ['john', 'paul', 'george', 'ringo']
+    find_match(musicians,instruments)
