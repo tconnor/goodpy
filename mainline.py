@@ -22,14 +22,32 @@ def main():
     quartz_list = f_man.prepend_list(quartz_list,'n')
     object_match = gui.find_match(science_list,quartz_list,title="Quartz Match",caption_tail='QTZ Selection')
     irf_stp.quartz_divide(science_list,object_match)
-    #science_list = f_man.prepend_list(science_list,'f')
-    #get the arc images needed
-    #irf_stp.identify
+    f_man.move_file_list(science_list,'BIAS')
+    science_list = f_man.prepend_list(science_list,'f')
+    f_man.make_and_move(quartz_list,'QTZ')
+    object_match = gui.find_single_match(science_list,calib_list,title='Arc Match',caption_tail='Arc Selection')
+    std_list = gui.select_subgroup(science_list,subunit="Standard Stars")
+    print std_list
+    print science_list
     #irf_stp.make_lambda_solution
-    #f_man.make_and_move(calib_list,'CALIB')
+    #    -Identify
+    #    -Reidentify
+    #    -Fitcoords
     #irf_stp.standard_trace
     #irf_stp.transform(science_list)
+    #f_man.make_and_move(calib_list,'CALIB')
     #science_list = f_man.prepend_list(science_list,'t')
+    #irf_stp.apall_std()
+    #irf_stp.standard()
+    #irf_stp.sensfunc()
+    #irf_stp.calibrate()
+    #irf_stp.background()
+    #irf_stp.imcombine()
+    
+
+
+
+
 
 if __name__ == '__main__':
     main()

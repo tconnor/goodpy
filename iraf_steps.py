@@ -1,12 +1,12 @@
 from pyraf import iraf
 import iraf_parameters as irf_prm
 def initialize_iraf():
-    iraf.noao()
-    iraf.imred()
-    iraf.ccdred()
-    iraf.specred()
-    iraf.twodspec()
-    iraf.longslit()
+    iraf.noao(_doprint=0)
+    iraf.imred(_doprint=0)
+    iraf.ccdred(_doprint=0)
+    iraf.specred(_doprint=0)
+    iraf.twodspec(_doprint=0)
+    iraf.longslit(_doprint=0)
     return
 
 def reduce_dimensions(filename):
@@ -41,7 +41,7 @@ def quartz_divide(science_list,object_match):
             for qtz in object_match[obj]:
                 qtzinpt += qtz +','
             iraf.imcombine(input=qtzinpt,output='tempquartz')
-            iraf.imarith(operand1=obj,operand2='tempquartz',operator='/',result='f'+obj)
+            iraf.imarith(operand1=obj,operand2='tempquartz',op='/',result='f'+obj)
             heditstr = 'Flat field images are '+qtzinpt[:-1]
             if len(heditstr) > 65:
                 nfields = int(len(heditstr)/65) #Declare int for py3 compatibility
@@ -51,7 +51,7 @@ def quartz_divide(science_list,object_match):
             else:
                 iraf.hedit(images='f'+obj,fields='flatcor',value=heditstr,add='yes',verify='No')
         else:
-            iraf.imarith(operand1=obj,operand2=object_match[obj][0],operator='/',result='f'+obj)
+            iraf.imarith(operand1=obj,operand2=object_match[obj][0],op='/',result='f'+obj)
             heditstr = 'Flat field image is '+object_match[obj][0]
             if len(heditstr) > 65:
                 nfields = int(len(heditstr)/65) #Declare int for py3 compatibility
@@ -71,5 +71,3 @@ def transform(filename,fcstar,fcarc,x1,x2,dx):
     iraf.transform.dx = dx
     print 'FEATURE SET IS NOT COMPLETE! IF YOU SEE THIS, TELL TOM TO GET TO WORK!'
     
-iraf.imarith(operand1=obj,operand2=tmpqtz,op='/',result='f'+obj)
-iraf.imcombine(input=qtzlist,output='tempquartz',expname='EXPTIME')
