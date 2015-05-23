@@ -1,6 +1,7 @@
 import file_manipulations as f_man
 import fits_tools as ftl
 import iraf_steps as irf_stp
+import GUI_functions as gui
 def main():
     irf_stp.initialize_iraf()
     file_list = f_man.get_file_list(searchstr='*.fits')
@@ -18,6 +19,9 @@ def main():
     quartz_list, calib_list, science_list = f_man.type_list(file_list,typedict,ignore='b')
     irf_stp.normalize_quartzes(quartz_list)
     f_man.make_and_move(quartz_list,'BIAS')
+    quartz_list = f_man.prepend_list(quartz_list,'n')
+    object_match = gui.find_match(science_list,quartz_list,title="Quartz Match",caption_tail='QTZ Selection')
+    irf_stp.quartz_divide(science_list,object_match)
     #science_list = f_man.prepend_list(science_list,'f')
     #get the arc images needed
     #irf_stp.identify
