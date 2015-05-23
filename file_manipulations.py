@@ -119,3 +119,21 @@ def make_and_move(move_list,folder_name):
     move_file_list(move_list,folder_name)
     return
 
+def find_uniques_from_dict(indict,inlist):
+    '''Effectively list(set([indict[y] for y in inlist])) but sorted'''
+    outlist = []
+    for inobj in inlist:
+        if indict[inobj] in outlist:
+            pass
+        else:
+            outlist.append(indict[inobj])
+    return outlist
+
+def make_fcname(inlist):
+    '''Strips Arcs of their extra information to create simple fitcoords name'''
+    outdict = {}
+    for obj in inlist:
+        namelist = obj.split('_')[0].split('.')
+        fcname = namelist[0][-4:] + namelist[1]
+        outdict[obj] = fcname
+    return outdict

@@ -1,5 +1,6 @@
 def set_ccdproc(ccdproc):
     #noao>imred>ccdred>ccdproc
+    ccdproc.ccdtype = ""
     ccdproc.noproc = 'No'
     ccdproc.fixpix = 'No'
     ccdproc.overscan = 'Yes'
@@ -115,7 +116,7 @@ def set_identify_standard(identify):
 def set_reidentify_standard(reidentify):
     #noao>twodspec>longslit>reidentify
     reidentify.interac = 'no'
-    reidentify.section = 'middle line'
+    reidentify.section = 'middle column'
     reidentify.newaps = 'Yes'
     reidentify.overrid = 'Yes'
     reidentify.refit = 'Yes'

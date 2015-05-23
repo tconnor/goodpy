@@ -90,7 +90,7 @@ def select_subgroup(mainlist,subunit="Subunits"):
     outlist = []
     win = Tkinter.Toplevel()
     pygui = GoodPyGUI(win)
-    pygui.set_title(win,'Select ')
+    pygui.set_title(win,'Select '+subunit)
     scoredict = {}
     abortvar = Tkinter.IntVar()
     for choice in mainlist:

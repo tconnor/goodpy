@@ -26,13 +26,13 @@ def main():
     science_list = f_man.prepend_list(science_list,'f')
     f_man.make_and_move(quartz_list,'QTZ')
     object_match = gui.find_single_match(science_list,calib_list,title='Arc Match',caption_tail='Arc Selection')
+    arc_list = f_man.find_uniques_from_dict(object_match,science_list)
+    arc_fc_dict =  f_man.make_fcname(arc_list)
     std_list = gui.select_subgroup(science_list,subunit="Standard Stars")
-    print std_list
-    print science_list
-    #irf_stp.make_lambda_solution
-    #    -Identify
-    #    -Reidentify
-    #    -Fitcoords
+    non_std = [fits for fits in science_list if fits not in std_list]
+    supplement_list = gui.select_subgroup(non_std,subunit="Supplementary Dispersion Frames")
+    irf_stp.standard_trace(std_list,supplement_list)
+    irf_stp.make_lambda_solution(arc_list,arc_fc_dict)
     #irf_stp.standard_trace
     #irf_stp.transform(science_list)
     #f_man.make_and_move(calib_list,'CALIB')

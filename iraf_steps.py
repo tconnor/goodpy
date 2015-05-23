@@ -22,7 +22,7 @@ def bias_correct(file_list,xmin='18',xmax='4111',ymin='350',ymax='1570'):
     iraf.ccdproc.trimsec = '['+xmin+':'+xmax+','+ymin+':'+ymax+']'
     for ff in file_list:
         output = 'b'+ff
-        iraf.ccdproc(images=ff,output=output)
+        iraf.ccdproc(images=ff,output=output,ccdtype = "")
     return
 
 def normalize_quartzes(quartz_list):
@@ -43,6 +43,7 @@ def quartz_divide(science_list,object_match):
             iraf.imcombine(input=qtzinpt,output='tempquartz')
             iraf.imarith(operand1=obj,operand2='tempquartz',op='/',result='f'+obj)
             heditstr = 'Flat field images are '+qtzinpt[:-1]
+            iraf.imdelete(images='tempquartz',go_ahead='yes',verify='no')
             if len(heditstr) > 65:
                 nfields = int(len(heditstr)/65) #Declare int for py3 compatibility
                 for ii in range(nfields+1):
@@ -61,7 +62,34 @@ def quartz_divide(science_list,object_match):
             else:
                 iraf.hedit(images='f'+obj,fields='flatcor',value=heditstr,add='yes',verify='No')
     return
-    
+
+
+def standard_trace(standard_list,supplement_list,outname='fcstar'):
+    irf_prm.set_identify_standard(iraf.identify)
+    irf_prm.set_reidentify_standard(iraf.reidentify)
+    irf_prm.set_fitcoords_standard(iraf.fitcoords)
+    all_standards = ''
+    for standrd in standard_list:
+        iraf.identify(images=standrd)
+        iraf.reidentify(reference=standrd,images=standrd)
+        all_standards += standrd[:-5]+','
+    for supplement in supplement_list:
+        iraf.identify(images=supplement)
+        iraf.reidentify(reference=supplement,images=supplement)
+        all_standards += supplement[:-5]+','
+    iraf.fitcoords(images=all_standards,fitname=outname)
+    return
+
+def make_lambda_solution(arc_list,fcnamedict):
+    irf_prm.set_identify_calibration(iraf.identify)
+    irf_prm.set_reidentify_calibration(iraf.reidentify)
+    irf_prm.set_fitcoords_calibration(iraf.fitcoords)
+    for arc in arc_list:
+        iraf.identify(images=arc)
+        iraf.reidentify(reference=arc,images=arc)
+        iraf.fitcoords(images=arc[:-5],fitname=fcnamedict[arc])
+    return
+
 def transform(filename,fcstar,fcarc,x1,x2,dx):
     '''Transforms filename to t+filename using noao>twodspec>longslit>transform'''
     irf_prm.set_transform(iraf.transform)
