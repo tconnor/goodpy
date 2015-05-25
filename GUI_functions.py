@@ -61,6 +61,9 @@ def find_match(principle, associate,title='GUI',caption_tail=' Selection'):
         outdict[obj] = obj_match
     return outdict
 
+def delete_by_values(lst, values):
+    values_as_set = set(values)
+    return [ x for x in lst if x not in values_as_set ]
 
 def find_single_match(principle, associate,title='GUI',caption_tail=' Selection'):
     '''Uses GoodPyGUI to list a selection of possible matches, and returns only one match'''
@@ -121,7 +124,49 @@ def select_subgroup(mainlist,subunit="Subunits"):
     win.destroy()
     return outlist    
 
+
+def break_apart(superlist,title='Break Apart',caption='Select from group'):
+    outlist = []
+    more_left = True
+    while more_left:
+        choicelist = []
+        win = Tkinter.Toplevel()
+        pygui = GoodPyGUI(win)
+        pygui.set_title(win,title)
+        scoredict = {}
+        for obj in superlist:
+            scoredict = pygui.add_checkbox(win,obj,scoredict)
+        pygui.add_close_button(win,'Confirm')
+        needs_match = True
+        while needs_match:
+            win.mainloop()
+            dellist = []
+            for choice in superlist:
+                if scoredict[choice].get():
+                    choicelist.append(choice)
+                    dellist.append(choice)
+                    needs_match=False
+                else:
+                    pass
+            if len(choicelist) < 1:
+                print 'You need to select at least one object'
+            else:
+                superlist = delete_by_values(superlist,dellist)
+        if len(superlist) == 0:
+            more_left = False
+        else:
+            pass
+        outlist.append(choicelist)
+        win.destroy()
+    return outlist
+
+
+
 def test_routine():
     instruments = ['guitars', 'keys', 'drums', 'bass', 'harp']
     musicians = ['john', 'paul', 'george', 'ringo']
     find_match(musicians,instruments)
+    superlist = ['a','b','c','d','e','f','g','h','i','j','k']
+    break_apart(superlist)
+
+

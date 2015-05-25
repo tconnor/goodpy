@@ -137,3 +137,8 @@ def make_fcname(inlist):
         fcname = namelist[0][-4:] + namelist[1]
         outdict[obj] = fcname
     return outdict
+
+def bell():
+    for i in range(10):
+        print '\a',
+    return

@@ -33,5 +33,28 @@ def get_dx_params(arc_list,xmin='18',xmax='4111'):
         outdict[arc] = dx_params
     return outdict
 
+def std_options():
+    std_options = []
+    std_options.append('cd32')
+    std_options.append('eg21')
+    std_options.append('eg274')
+    std_options.append('f110')
+    std_options.append('f56')
+    std_options.append('h600')
+    std_options.append('l1020')
+    std_options.append('l1788')
+    std_options.append('l2415')
+    std_options.append('l3218')
+    std_options.append('l377')
+    std_options.append('l3864')
+    std_options.append('l4364')
+    std_options.append('l4816')
+    std_options.append('l6248')
+    std_options.append('l7379')
+    std_options.append('l745')
+    std_options.append('l7987')
+    std_options.append('l9239')
+    std_options.append('l9491')
+    return std_options
 
 

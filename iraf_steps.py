@@ -102,3 +102,26 @@ def transform(science_list,object_match,arc_fc_dict,arc_coords,fcstar='star'):
         iraf.transform(input=obj,output='t'+obj,fitnames=fcstar+','+fcarc)
     return
     
+def apall_std(stdlist):
+    irf_prm.set_apall_std(iraf.apall)
+    for std in stdlist:
+        iraf.apall(input=std,output = 's'+std,nfind=1,interactive=no)
+    return
+
+def standard(stdlist,std_name,stdidx):
+    irf_prm.set_standard(iraf.standard)
+    for std in stdlist:
+        iraf.standard(input='s'+std,output='std'+str(stdidx),star_name=std_name)
+    return
+
+def sensfunc(stdidx):
+    iraf.sensfunc(standards='std'+str(stdidx),sensitivity='sens'+str(stdidx))
+    return
+
+
+def imcombine(inlist,outname):
+    imcinpt = ''
+    for obj in inlist:
+        imcinpt += obj +','
+    iraf.imcombine(input=imcinpt,output=outname)
+    return

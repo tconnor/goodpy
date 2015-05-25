@@ -11,14 +11,17 @@ def main():
     for file,obj in zip(file_list,obj_list):
         typedict[file.split('.')[0]] = obj
     f_man.first_movement(file_list,typedict,force_overwrite=False)
+    f_man.bell() #Alert user
     #Sort into different observing modes
     file_list = f_man.get_file_list(searchstr='*.fits')
     for ff in file_list:
         irf_stp.reduce_dimensions(ff)
+    f_man.bell() #Alert user
     irf_stp.bias_correct(file_list)
     f_man.make_and_move(file_list,'ORIG')
     file_list = f_man.prepend_list(file_list,'b')
     quartz_list, calib_list, science_list = f_man.type_list(file_list,typedict,ignore='b')
+    f_man.bell() #Alert user
     irf_stp.normalize_quartzes(quartz_list)
     f_man.make_and_move(quartz_list,'BIAS')
     quartz_list = f_man.prepend_list(quartz_list,'n')
@@ -42,16 +45,27 @@ def main():
     science_list = f_man.prepend_list(non_std,'t')
     std_list = f_man.prepend_list(std_list,'t')
     #
-    #Break Off Standards -- may be more than one
-    #Pick which standard goes with which object
-    #irf_stp.apall_std()
-    #irf_stp.standard()
-    #irf_stp.sensfunc()
-    #f_man.make_and_move(std_list,'STD')
+    super_std = gui.break_apart(std_list,title='Standard Selection',caption='Select individual standard stars')
+    std_options = dato_std_options()
+    calib_stars = []
+    for stdl in super_std:
+        stdidx = super_std.index(stdl)
+        irf_stp.apall_std(stdl)
+        std_name = gui.find_single_match([stdl[0]],std_options,title='Star Name',caption_tail=' Star Name')stdl[0]
+        irf_stp.standard(stdl,std_name,stdidx)
+        calib_stars.append(std_name)
+        irf_stp.sensfunc(stdidx)
+    f_man.make_and_move(std_list,'TRANS')
+    f_man.prepend_list(std_list,'s')
+    f_man.make_and_move(std_list,'STD')
     #
-    #irf_stp.calibrate()
-    #irf_stp.background()
-    #irf_stp.imcombine()
+    super_science = gui.break_apart(science_list,title='Object Selection',caption='Select individual objects')
+    for obj in super_science:
+        #pick standard star
+        #irf_stp.calibrate()
+        #irf_stp.background()
+        outname = obj[0].split('.')[1]
+        irf_stp.imcombine(obj,outname)
     
 
 

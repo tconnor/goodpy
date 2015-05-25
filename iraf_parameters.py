@@ -154,7 +154,7 @@ def set_transform(transform):
     transform.flux = 'Yes'
     return
 
-def set_apall(apall):
+def set_apall_std(apall):
     #noao>imred>specred>apall
     apall.format = 'multispec'
     apall.interac = 'Yes'
@@ -255,3 +255,4 @@ def set_background(background):
     background.niterat = 3
     background.grow = 0
     return
+
