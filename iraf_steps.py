@@ -64,7 +64,7 @@ def quartz_divide(science_list,object_match):
     return
 
 
-def standard_trace(standard_list,supplement_list,outname='fcstar'):
+def standard_trace(standard_list,supplement_list,outname='star'):
     irf_prm.set_identify_standard(iraf.identify)
     irf_prm.set_reidentify_standard(iraf.reidentify)
     irf_prm.set_fitcoords_standard(iraf.fitcoords)
@@ -90,12 +90,15 @@ def make_lambda_solution(arc_list,fcnamedict):
         iraf.fitcoords(images=arc[:-5],fitname=fcnamedict[arc])
     return
 
-def transform(filename,fcstar,fcarc,x1,x2,dx):
+def transform(science_list,object_match,arc_fc_dict,arc_coords,fcstar='star'):
     '''Transforms filename to t+filename using noao>twodspec>longslit>transform'''
     irf_prm.set_transform(iraf.transform)
-    iraf.transform.fitnames = fcstar+','+fcarc
-    iraf.transform.x1 = x1
-    iraf.transform.x2 = x2
-    iraf.transform.dx = dx
-    print 'FEATURE SET IS NOT COMPLETE! IF YOU SEE THIS, TELL TOM TO GET TO WORK!'
+    for obj in science_list:
+        fcarc = arc_fc_dict[object_match[obj]]
+        dx_param = arc_coords[object_match[obj]]
+        iraf.transform.x1 = dx_param[0]
+        iraf.transform.x2 = dx_param[1]
+        iraf.transform.dx = dx_param[2]
+        iraf.transform(input=obj,output='t'+obj,fitnames=fcstar+','+fcarc)
+    return
     
