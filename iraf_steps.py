@@ -105,7 +105,7 @@ def transform(science_list,object_match,arc_fc_dict,arc_coords,fcstar='star'):
 def apall_std(stdlist):
     irf_prm.set_apall_std(iraf.apall)
     for std in stdlist:
-        iraf.apall(input=std,output = 's'+std,nfind=1,interactive=no)
+        iraf.apall(input=std,output = 's'+std,nfind=1,interactive='no')
     return
 
 def standard(stdlist,std_name,stdidx):
@@ -119,12 +119,12 @@ def sensfunc(stdidx):
     return
 
 def flux_calibrate(objlist,stdidx):
-    irf_prm.set_calibrate(iraf.calibrate)
+    irf_prm.set_calibrate(iraf.specred.calibrate)
     for clbobj in objlist:
-        iraf.calibrate(input=clbobj,output='l'+clbobj,airmass=None,exptime=None,sensitivity='sens'+str(stdidx))
+        iraf.specred.calibrate(input=clbobj,output='l'+clbobj,airmass=None,exptime=None,sensitivity='sens'+str(stdidx))
     return
 
-def background():
+def background(objlist):
     irf_prm.set_background(iraf.background)
     for bkgobj in objlist:
         iraf.background(input='l'+bkgobj,output='sl'+bkgobj)
@@ -134,5 +134,5 @@ def imcombine(inlist,outname):
     imcinpt = ''
     for obj in inlist:
         imcinpt += 'sl'+obj +','
-    iraf.imcombine(input=imcinpt,output=outname,sigmas=outname+'_sig')
+    iraf.imcombine(input=imcinpt,output=outname,sigmas=outname+'_sig',combine='median')
     return

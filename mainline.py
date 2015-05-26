@@ -3,7 +3,10 @@ import fits_tools as ftl
 import iraf_steps as irf_stp
 import GUI_functions as gui
 import data_tools as dato
+from time import time
+
 def main():
+    t0 = time()
     irf_stp.initialize_iraf()
     file_list = f_man.get_file_list(searchstr='*.fits')
     obj_list = [ftl.observation_type(ff) for ff in file_list]
@@ -45,12 +48,12 @@ def main():
     science_list = f_man.prepend_list(non_std,'t')
     std_list = f_man.prepend_list(std_list,'t')
     super_std = gui.break_apart(std_list,title='Standard Selection',caption='Select individual standard stars')
-    std_options = dato_std_options()
+    std_options = dato.std_options()
     calib_stars = []
     for stdl in super_std:
         stdidx = super_std.index(stdl)
         irf_stp.apall_std(stdl)
-        std_name = gui.find_single_match([stdl[0]],std_options,title='Star Name',caption_tail=' Star Name')stdl[0]
+        std_name = gui.find_single_match([stdl[0]],std_options,title='Star Name',caption_tail=' Star Name')[stdl[0]]
         irf_stp.standard(stdl,std_name,stdidx)
         calib_stars.append(std_name)
         irf_stp.sensfunc(stdidx)
@@ -58,10 +61,11 @@ def main():
     f_man.prepend_list(std_list,'s')
     f_man.make_and_move(std_list,'STD')
     super_science = gui.break_apart(science_list,title='Object Selection',caption='Select individual objects')
-    standard_match = gui.find_single_match(super_science,calib_stars,title='Standard Match',caption_tail='Standard Selection')
+    first_science = [obj[0] for obj in super_science]
+    standard_match = gui.find_single_match(first_science,calib_stars,title='Standard Match',caption_tail='Standard Selection')
     for obj in super_science:
         stdidx = calib_stars.index(standard_match[obj])
-        irf_stp.calibrate(obj,stdidx)
+        irf_stp.flux_calibrate(obj,stdidx)
         irf_stp.background(obj)
         outname = obj[0].split('.')[1]
         irf_stp.imcombine(obj,outname)
@@ -70,7 +74,8 @@ def main():
     f_man.make_and_move(science_list,'FLUX')
     f_man.prepend_list(std_list,'s')
     f_man.make_and_move(science_list,'BKG')
-
+    t1 = time()
+    print 'Time: '+str(t1-t0)
 
 
 

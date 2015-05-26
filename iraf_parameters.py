@@ -41,8 +41,8 @@ def set_identify_calibration(identify):
     identify.section = 'middle line'
     identify.databas = 'database'
     identify.coordli = 'linelist'
-    identify.nsum = 5
-    identify.match = 10
+    identify.nsum = 10
+    identify.match = 50
     identify.maxfeat = 50
     identify.zwidth = 100
     identify.ftype = 'emission'
@@ -72,10 +72,10 @@ def set_reidentify_calibration(reidentify):
     reidentify.search = 0
     reidentify.nlost = 10
     reidentify.cradius = 5
-    reidentify.thresho = 10
+    reidentify.thresho = 0
     reidentify.addfeat = 'No'
     reidentify.coordli = 'linelist'
-    reidentify.match = 10
+    reidentify.match = 50
     reidentify.maxfeat = 50
     reidentify.minsep = 2
     reidentify.databas = 'database'
@@ -240,7 +240,7 @@ def set_calibrate(calibrate):
     #noao>imred>specred>calibrate
     calibrate.extinct = 'Yes'
     calibrate.flux = 'Yes'
-    calibrate.extinction = 'ondstsds$ctioextinct.dat'
+    calibrate.extinction = 'onedstds$ctioextinct.dat'
     calibrate.airmass = None
     calibrate.exptime = None
     return

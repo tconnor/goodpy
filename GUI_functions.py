@@ -68,6 +68,14 @@ def delete_by_values(lst, values):
 def find_single_match(principle, associate,title='GUI',caption_tail=' Selection'):
     '''Uses GoodPyGUI to list a selection of possible matches, and returns only one match'''
     outdict = {}
+    if len(associate)==1:
+        outdict = {}
+        for obj in principle:
+            outdict[obj] = associate[0]
+        return outdict
+    else:
+        pass
+    
     for obj in principle:
         win = Tkinter.Toplevel()
         pygui = GoodPyGUI(win)
