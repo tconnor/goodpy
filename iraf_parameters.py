@@ -241,12 +241,14 @@ def set_calibrate(calibrate):
     calibrate.extinct = 'Yes'
     calibrate.flux = 'Yes'
     calibrate.extinction = 'ondstsds$ctioextinct.dat'
+    calibrate.airmass = None
+    calibrate.exptime = None
     return
 
 def set_background(background):
     #noao>imred>specred>background
     background.axis = 2
-    background.interac = 'No'
+    background.interac = 'Yes'
     background.naverag = 1
     background.functio = 'chebyshev'
     background.order = 1

@@ -118,10 +118,21 @@ def sensfunc(stdidx):
     iraf.sensfunc(standards='std'+str(stdidx),sensitivity='sens'+str(stdidx))
     return
 
+def flux_calibrate(objlist,stdidx):
+    irf_prm.set_calibrate(iraf.calibrate)
+    for clbobj in objlist:
+        iraf.calibrate(input=clbobj,output='l'+clbobj,airmass=None,exptime=None,sensitivity='sens'+str(stdidx))
+    return
+
+def background():
+    irf_prm.set_background(iraf.background)
+    for bkgobj in objlist:
+        iraf.background(input='l'+bkgobj,output='sl'+bkgobj)
+    return
 
 def imcombine(inlist,outname):
     imcinpt = ''
     for obj in inlist:
-        imcinpt += obj +','
-    iraf.imcombine(input=imcinpt,output=outname)
+        imcinpt += 'sl'+obj +','
+    iraf.imcombine(input=imcinpt,output=outname,sigmas=outname+'_sig')
     return

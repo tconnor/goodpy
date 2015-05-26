@@ -44,7 +44,6 @@ def main():
     f_man.make_and_move(science_list,'NORM')
     science_list = f_man.prepend_list(non_std,'t')
     std_list = f_man.prepend_list(std_list,'t')
-    #
     super_std = gui.break_apart(std_list,title='Standard Selection',caption='Select individual standard stars')
     std_options = dato_std_options()
     calib_stars = []
@@ -58,15 +57,20 @@ def main():
     f_man.make_and_move(std_list,'TRANS')
     f_man.prepend_list(std_list,'s')
     f_man.make_and_move(std_list,'STD')
-    #
     super_science = gui.break_apart(science_list,title='Object Selection',caption='Select individual objects')
+    standard_match = gui.find_single_match(super_science,calib_stars,title='Standard Match',caption_tail='Standard Selection')
     for obj in super_science:
-        #pick standard star
-        #irf_stp.calibrate()
-        #irf_stp.background()
+        stdidx = calib_stars.index(standard_match[obj])
+        irf_stp.calibrate(obj,stdidx)
+        irf_stp.background(obj)
         outname = obj[0].split('.')[1]
         irf_stp.imcombine(obj,outname)
-    
+    f_man.make_and_move(science_list,'TRANS')
+    f_man.prepend_list(std_list,'l')
+    f_man.make_and_move(science_list,'FLUX')
+    f_man.prepend_list(std_list,'s')
+    f_man.make_and_move(science_list,'BKG')
+
 
 
 
