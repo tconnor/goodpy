@@ -1,5 +1,9 @@
 from pyraf import iraf
 import iraf_parameters as irf_prm
+
+def gui_alert():
+    print 'An IRAF GUI has been opened and requires your input'
+    
 def initialize_iraf():
     iraf.noao(_doprint=0)
     iraf.imred(_doprint=0)

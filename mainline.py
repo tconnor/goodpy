@@ -66,13 +66,14 @@ def main():
     for obj in super_science:
         stdidx = calib_stars.index(standard_match[obj])
         irf_stp.flux_calibrate(obj,stdidx)
+        f_man.gui_alert()
         irf_stp.background(obj)
         outname = obj[0].split('.')[1]
         irf_stp.imcombine(obj,outname)
     f_man.make_and_move(science_list,'TRANS')
-    f_man.prepend_list(std_list,'l')
+    f_man.prepend_list(science_list,'l')
     f_man.make_and_move(science_list,'FLUX')
-    f_man.prepend_list(std_list,'s')
+    f_man.prepend_list(science_list,'s')
     f_man.make_and_move(science_list,'BKG')
     t1 = time()
     print 'Time: '+str(t1-t0)

@@ -142,3 +142,7 @@ def bell():
     for i in range(10):
         print '\a',
     return
+
+def gui_alert():
+    print 'An IRAF GUI has been opened and requires your input'
+    return
