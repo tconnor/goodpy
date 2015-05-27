@@ -28,14 +28,55 @@ class GoodPyGUI:
         self.cpt.pack()
         
 
+class GoodPyGUI_scroll(Tkinter.Frame):
+    def __init__(self,master):
+        Tkinter.Frame.__init__(self,master)
+        self.master = master
+        master.title('GUI')
+        self.vsb = Tkinter.Scrollbar(master,orient="vertical")
+        self.text = Tkinter.Text(master,width=40,height=20,yscrollcommand=self.vsb.set)
+        self.vsb.config(command=self.text.yview)
+        self.vsb.pack(side="right",fill="y")
+        self.text.pack(side="left",fill="both",expand=True)
+    def add_close_button(self,master,clabel='Close'):
+        self.close_button = Tkinter.Button(master, text = clabel, command=master.quit)
+        self.text.window_create("end",window=self.close_button)
+        #self.close_button.pack()
+    def add_checkbox(self,master,boxname,scoredict):
+        scoredict[boxname] = Tkinter.BooleanVar()
+        scoredict[boxname].set(False)
+        self.l = Tkinter.Checkbutton(master,text=boxname,variable=scoredict[boxname],onvalue=True,offvalue=False)
+        self.text.window_create("end",window=self.l)
+        self.text.insert("end",'\n')
+        #self.l.pack()
+        return scoredict
+    def add_specific_checkbox(self,master,boxname,variab):
+        self.spl = Tkinter.Checkbutton(master,text=boxname,variable=variab)
+        self.text.window_create("end",window=self.spl)
+        #self.spl.pack()
+    def add_radiobutton(self,master,buttonname,var):
+        self.rb = Tkinter.Radiobutton(master,text=buttonname,variable=var,value=buttonname)
+        self.text.window_create("end",window=self.rb)
+        #self.rb.pack()
+    def set_title(self,master,newtitle):
+        master.title(newtitle)
+    def read(self,boxname,scoredict):
+        return scoredict[boxname].get()
+    def add_caption(self,master,caption):
+        self.cpt = Tkinter.Label(master,text=caption)
+        self.text.window_create("end",window=self.cpt)
+        #self.cpt.pack()
         
-        
+
 def find_match(principle, associate,title='GUI',caption_tail=' Selection'):
     '''Uses GoodPyGUI to list a selection of possible matches, and returns user selection'''
     outdict = {}
     for obj in principle:
         win = Tkinter.Toplevel()
-        pygui = GoodPyGUI(win)
+        if len(associate) > 40:
+            pygui = GoodPyGUI_scrollbar(win)
+        else:
+            pygui = GoodPyGUI(win)
         pygui.set_title(win,title)
         pygui.add_caption(win,obj+caption_tail)
         scoredict = {}
@@ -78,7 +119,10 @@ def find_single_match(principle, associate,title='GUI',caption_tail=' Selection'
     
     for obj in principle:
         win = Tkinter.Toplevel()
-        pygui = GoodPyGUI(win)
+        if len(associate) > 40:
+            pygui = GoodPyGUI_scrollbar(win)
+        else:
+            pygui = GoodPyGUI(win)
         pygui.set_title(win,title)
         pygui.add_caption(win,obj+caption_tail)
         obj_match = []
@@ -100,7 +144,10 @@ def find_single_match(principle, associate,title='GUI',caption_tail=' Selection'
 def select_subgroup(mainlist,subunit="Subunits"):
     outlist = []
     win = Tkinter.Toplevel()
-    pygui = GoodPyGUI(win)
+    if len(mainlist) > 40:
+        pygui = GoodPyGUI_scrollbar(win)
+    else:
+        pygui = GoodPyGUI(win)
     pygui.set_title(win,'Select '+subunit)
     scoredict = {}
     abortvar = Tkinter.IntVar()
@@ -139,7 +186,10 @@ def break_apart(superlist,title='Break Apart',caption='Select from group'):
     while more_left:
         choicelist = []
         win = Tkinter.Toplevel()
-        pygui = GoodPyGUI(win)
+        if len(superlist) > 40:
+            pygui = GoodPyGUI_scrollbar(win)
+        else:
+            pygui = GoodPyGUI(win)
         pygui.set_title(win,title)
         scoredict = {}
         for obj in superlist:
