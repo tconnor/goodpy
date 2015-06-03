@@ -13,7 +13,11 @@ def main():
     typedict = {}
     for file,obj in zip(file_list,obj_list):
         typedict[file.split('.')[0]] = obj
+    typedict = gui.establish_type(file_list,typedict,['focus','img','fear','qtz','obj'])
+    print typedict
     f_man.first_movement(file_list,typedict,force_overwrite=False)
+    foo = 7 / 0
+
     f_man.bell() #Alert user
     #Sort into different observing modes
     file_list = f_man.get_file_list(searchstr='*.fits')

@@ -18,12 +18,31 @@ def observation_type(filename):
         type = 'img'
         return type
     if 'slit' in splitname:
-        type = 'slit'
+        type = 'img'
         return type
     else:
         type = 'obj'
         return type
 
+def fits_head_observation_type(filename):
+    with pf.open(filename,mode='readonly') as hdulist:
+        slit = hdulist[0].header['SLIT']
+        grating = hdulist[0].header['GRATING']
+        obstype = hdulist[0].header['OBSTYPE']
+    if obstype == 'FLAT':
+        return 'qtz'
+    elif obstype == 'COMP':
+        if slit == '0.46" long slit':
+            return 'focus'
+        else:
+            return 'fear'
+    elif grating != '<NO GRATING>':
+        return 'obj'
+    else:
+        #There is no header distinction between SLIT and IMG
+        return 'img'
+
+    
 def fix_header(inhead):
     '''Corrects SOAR headers that include '?' ('\xb0') in Header'''
     contin = True

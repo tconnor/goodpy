@@ -4,6 +4,9 @@ class GoodPyGUI:
     def __init__(self,master):
         self.master = master
         master.title('GUI')
+    def add_frame(self,master,bg='white'):
+        mapframe = Tkinter.Frame(master,bg=bg)
+        return mapframe
     def add_close_button(self,master,clabel='Close'):
         self.close_button = Tkinter.Button(master, text = clabel, command=master.quit)
         self.close_button.pack()
@@ -26,7 +29,15 @@ class GoodPyGUI:
     def add_caption(self,master,caption):
         self.cpt = Tkinter.Label(master,text=caption)
         self.cpt.pack()
-        
+    def add_radio_list(self,master,objkey,buttons,variab,initval):
+        mapframe = self.add_frame(master)
+        self.cpt = Tkinter.Label(mapframe,text=objkey)
+        self.cpt.pack(side=Tkinter.LEFT)
+        for possval in buttons:
+            self.rb = Tkinter.Radiobutton(mapframe,text=possval,variable=variab,value=possval)
+            self.rb.pack(side=Tkinter.LEFT)
+        variab.set(initval)
+        mapframe.pack()
 
 class GoodPyGUI_scroll(Tkinter.Frame):
     def __init__(self,master):
@@ -34,10 +45,13 @@ class GoodPyGUI_scroll(Tkinter.Frame):
         self.master = master
         master.title('GUI')
         self.vsb = Tkinter.Scrollbar(master,orient="vertical")
-        self.text = Tkinter.Text(master,width=40,height=20,yscrollcommand=self.vsb.set)
+        self.text = Tkinter.Text(master,width=200,height=200,yscrollcommand=self.vsb.set)
         self.vsb.config(command=self.text.yview)
         self.vsb.pack(side="right",fill="y")
         self.text.pack(side="left",fill="both",expand=True)
+    def add_frame(self,master,bg='white'):
+        mapframe = Tkinter.Frame(master,bg=bg)
+        return mapframe
     def add_close_button(self,master,clabel='Close'):
         self.close_button = Tkinter.Button(master, text = clabel, command=master.quit)
         self.text.window_create("end",window=self.close_button)
@@ -66,7 +80,17 @@ class GoodPyGUI_scroll(Tkinter.Frame):
         self.cpt = Tkinter.Label(master,text=caption)
         self.text.window_create("end",window=self.cpt)
         #self.cpt.pack()
-        
+    def add_radio_list(self,master,objkey,buttons,variab,initval):
+        self.mapframe = self.add_frame(master)
+        self.cpt = Tkinter.Label(self.mapframe,text=objkey)
+        self.cpt.pack(side=Tkinter.LEFT)
+        for possval in buttons:
+            self.rb = Tkinter.Radiobutton(self.mapframe,text=possval,variable=variab,value=possval)
+            self.rb.pack(side=Tkinter.LEFT)
+        variab.set(initval)
+        self.text.window_create("end",align=Tkinter.BOTTOM,window=self.mapframe)
+        #mapframe.pack()
+
 
 def find_match(principle, associate,title='GUI',caption_tail=' Selection'):
     '''Uses GoodPyGUI to list a selection of possible matches, and returns user selection'''
@@ -74,7 +98,7 @@ def find_match(principle, associate,title='GUI',caption_tail=' Selection'):
     for obj in principle:
         win = Tkinter.Toplevel()
         if len(associate) > 40:
-            pygui = GoodPyGUI_scrollbar(win)
+            pygui = GoodPyGUI_scroll(win)
         else:
             pygui = GoodPyGUI(win)
         pygui.set_title(win,title)
@@ -120,7 +144,7 @@ def find_single_match(principle, associate,title='GUI',caption_tail=' Selection'
     for obj in principle:
         win = Tkinter.Toplevel()
         if len(associate) > 40:
-            pygui = GoodPyGUI_scrollbar(win)
+            pygui = GoodPyGUI_scroll(win)
         else:
             pygui = GoodPyGUI(win)
         pygui.set_title(win,title)
@@ -145,7 +169,7 @@ def select_subgroup(mainlist,subunit="Subunits"):
     outlist = []
     win = Tkinter.Toplevel()
     if len(mainlist) > 40:
-        pygui = GoodPyGUI_scrollbar(win)
+        pygui = GoodPyGUI_scroll(win)
     else:
         pygui = GoodPyGUI(win)
     pygui.set_title(win,'Select '+subunit)
@@ -187,7 +211,7 @@ def break_apart(superlist,title='Break Apart',caption='Select from group'):
         choicelist = []
         win = Tkinter.Toplevel()
         if len(superlist) > 40:
-            pygui = GoodPyGUI_scrollbar(win)
+            pygui = GoodPyGUI_scroll(win)
         else:
             pygui = GoodPyGUI(win)
         pygui.set_title(win,title)
@@ -218,6 +242,27 @@ def break_apart(superlist,title='Break Apart',caption='Select from group'):
         win.destroy()
     return outlist
 
+def establish_type(mainlist,typedict,buttons):
+    win = Tkinter.Toplevel()
+    if len(mainlist) > 40:
+        pygui = GoodPyGUI_scroll(win)
+    else:
+        pygui = GoodPyGUI(win)
+    pygui.set_title(win,'Select FITS File Type')
+    pygui.add_caption(win,'Verify Each File Type')
+    outdict = {}
+    for filename in mainlist:
+        f_obj = filename.split('.')[0]
+        ftype = typedict[f_obj]
+        outdict[f_obj] = Tkinter.Variable()
+        pygui.add_radio_list(win,f_obj,buttons,outdict[f_obj],typedict[f_obj])
+    pygui.add_close_button(win,'Confirm')
+    win.mainloop()
+    for filename in mainlist:
+        f_obj = filename.split('.')[0]
+        typedict[f_obj] = outdict[f_obj].get()
+    win.destroy()
+    return typedict
 
 
 def test_routine():
