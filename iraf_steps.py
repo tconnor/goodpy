@@ -109,7 +109,7 @@ def transform(science_list,object_match,arc_fc_dict,arc_coords,fcstar='star'):
 def apall_std(stdlist):
     irf_prm.set_apall_std(iraf.apall)
     for std in stdlist:
-        iraf.apall(input=std,output = 's'+std,nfind=1,interactive='no')
+        iraf.apall(input=std,output = 's'+std,nfind=0)#,interactive='no')
     return
 
 def standard(stdlist,std_name,stdidx):
