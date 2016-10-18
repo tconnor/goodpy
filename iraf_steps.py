@@ -26,15 +26,15 @@ def bias_correct(file_list,xmin='18',xmax='4111',ymin='350',ymax='1570',bindefau
     iraf.ccdproc.biassec = biassecs[binsize]
     iraf.ccdproc.trimsec = '['+xmin+':'+xmax+','+ymin+':'+ymax+']'
     for ff in file_list:
-        comm = scnd.comment_on('PARAM18')
+        comm = scnd.get_comment(ff,'PARAM18')
         if comm == '1 / Serial Binning,Pixels':
-            binsize = iraf.hselect('0040.LTT7379_img','PARAM18','yes')
+            binsize = iraf.hselect(ff,'PARAM18','yes')
+        else:
+            param_name = scnd.find_param_with_comment(ff,'1 / Serial Binning,Pixels')
+            if param_name == 'NullReturn':
+                binsize=bindefault
             else:
-                param_name = scnd.find_param_with_comment('1 / Serial Binning,Pixels')
-                if param_name = 'NullReturn':
-                    binsize=bindefault
-                else:
-                    binsize = value_of(param_name)
+                binsize = iraf.hselect(ff,param_name,'yes')
         iraf.ccdproc.biassec = biassecs[binsize]
         output = 'b'+ff
         iraf.ccdproc(images=ff,output=output,ccdtype = "")
