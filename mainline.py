@@ -33,6 +33,7 @@ def main():
     for ff in file_list:
         irf_stp.reduce_dimensions(ff)
     f_man.bell() #Alert user
+    #There should be a way to check the bias.
     irf_stp.bias_correct(file_list)
     f_man.make_and_move(file_list,'ORIG')
     file_list = f_man.prepend_list(file_list,'b')
