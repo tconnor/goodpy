@@ -1,5 +1,8 @@
-import pyfits as pf
-
+try:
+    import pyfits as pf
+except ImportError:
+    import astropy.io.fits as pf
+    
 def observation_type(filename):
     splitname = filename.split('.')
     foo = splitname.pop(0)
