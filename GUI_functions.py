@@ -244,7 +244,7 @@ def break_apart(superlist,title='Break Apart',caption='Select from group',noscro
 
 def establish_type(mainlist,typedict,buttons,noscroll_max=20):
     win = Tkinter.Toplevel()
-    if len(mainlist) > noscroll_max=:
+    if len(mainlist) > noscroll_max:
         pygui = GoodPyGUI_scroll(win)
     else:
         pygui = GoodPyGUI(win)
