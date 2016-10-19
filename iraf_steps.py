@@ -111,6 +111,9 @@ def transform(science_list,object_match,arc_fc_dict,arc_coords,fcstar='star'):
     for obj in science_list:
         fcarc = arc_fc_dict[object_match[obj]]
         dx_param = arc_coords[object_match[obj]]
+        #These should be the same for each observing mode
+        #Because then they're all mapped together for
+        #Accurate flux calibration and imcombining
         iraf.transform.x1 = dx_param[0]
         iraf.transform.x2 = dx_param[1]
         iraf.transform.dx = dx_param[2]

@@ -39,12 +39,15 @@ def run_through_idb(filen,xmin='18',xmax='4111'):
     return x1,x2,dx
 
 
-def get_dx_params(arc_list,xmin='18',xmax='4111'):
+def get_dx_params(arc_list,xmin='18',xmax='4111',use_fixed=False,x1=5000,x2=7000,dx=0.65):
     outdict = {}
     for arc in arc_list:
-        filen = 'database/id'+arc[:-5]
-        dx_params = run_through_idb(filen,xmin=xmin,xmax=xmax)
-        outdict[arc] = dx_params
+        if use_fixed:
+            outdict[arc] = [x1,x2, dx]
+        else:
+            filen = 'database/id'+arc[:-5]
+            dx_params = run_through_idb(filen,xmin=xmin,xmax=xmax)
+            outdict[arc] = dx_params
     return outdict
 
 def std_options():

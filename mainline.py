@@ -17,6 +17,9 @@ import data_tools as dato
 from time import time
 
 def main():
+
+
+    #Step 1: Separate by file type and Trim/Bias Correct
     t0 = time()
     irf_stp.initialize_iraf()
     file_list = f_man.get_file_list(searchstr='*.fits')
@@ -36,6 +39,10 @@ def main():
     #There should be a way to check the bias.
     irf_stp.bias_correct(file_list)
     f_man.make_and_move(file_list,'ORIG')
+
+
+
+    #Step 2: Flatfield 
     file_list = f_man.prepend_list(file_list,'b')
     quartz_list, calib_list, science_list = f_man.type_list(file_list,typedict,ignore='b')
     f_man.bell() #Alert user
@@ -47,6 +54,9 @@ def main():
     f_man.move_file_list(science_list,'BIAS')
     science_list = f_man.prepend_list(science_list,'f')
     f_man.make_and_move(quartz_list,'QTZ')
+
+    #Step 3: Transform to uniform wavelength grid
+    #This is where arc_coords should be established
     object_match = gui.find_single_match(science_list,calib_list,title='Arc Match',caption_tail=' Arc Selection')
     arc_list = f_man.find_uniques_from_dict(object_match,science_list)
     arc_fc_dict =  f_man.make_fcname(arc_list)
@@ -55,8 +65,11 @@ def main():
     supplement_list = gui.select_subgroup(non_std,subunit="Supplementary Dispersion Frames")
     irf_stp.standard_trace(std_list,supplement_list)
     irf_stp.make_lambda_solution(arc_list,arc_fc_dict)
-    arc_coords = dato.get_dx_params(arc_list)
+    arc_coords = dato.get_dx_params(arc_list,use_fixed=True,x1=4800,x2=7200,dx=0.65)
     irf_stp.transform(science_list,object_match,arc_fc_dict,arc_coords)
+
+
+    #Step 4: Make Standard star maps
     f_man.make_and_move(calib_list,'CALIB')
     f_man.make_and_move(science_list,'NORM')
     science_list = f_man.prepend_list(non_std,'t')
@@ -74,6 +87,9 @@ def main():
     f_man.make_and_move(std_list,'TRANS')
     f_man.prepend_list(std_list,'s')
     f_man.make_and_move(std_list,'STD')
+
+
+    #Step 5: Flux calibrate, BKG subtract
     super_science = gui.break_apart(science_list,title='Object Selection',caption='Select individual objects')
     first_science = [obj[0] for obj in super_science]
     standard_match = gui.find_single_match(first_science,calib_stars,title='Standard Match',caption_tail='Standard Selection')
