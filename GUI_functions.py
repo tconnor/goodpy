@@ -92,12 +92,12 @@ class GoodPyGUI_scroll(Tkinter.Frame):
         #mapframe.pack()
 
 
-def find_match(principle, associate,title='GUI',caption_tail=' Selection'):
+def find_match(principle, associate,title='GUI',caption_tail=' Selection',noscroll_max=20):
     '''Uses GoodPyGUI to list a selection of possible matches, and returns user selection'''
     outdict = {}
     for obj in principle:
         win = Tkinter.Toplevel()
-        if len(associate) > 40:
+        if len(associate) > noscroll_max:
             pygui = GoodPyGUI_scroll(win)
         else:
             pygui = GoodPyGUI(win)
@@ -130,7 +130,7 @@ def delete_by_values(lst, values):
     values_as_set = set(values)
     return [ x for x in lst if x not in values_as_set ]
 
-def find_single_match(principle, associate,title='GUI',caption_tail=' Selection'):
+def find_single_match(principle, associate,title='GUI',caption_tail=' Selection',noscroll_max=20):
     '''Uses GoodPyGUI to list a selection of possible matches, and returns only one match'''
     outdict = {}
     if len(associate)==1:
@@ -143,7 +143,7 @@ def find_single_match(principle, associate,title='GUI',caption_tail=' Selection'
     
     for obj in principle:
         win = Tkinter.Toplevel()
-        if len(associate) > 40:
+        if len(associate) > noscroll_max:
             pygui = GoodPyGUI_scroll(win)
         else:
             pygui = GoodPyGUI(win)
@@ -165,10 +165,10 @@ def find_single_match(principle, associate,title='GUI',caption_tail=' Selection'
         outdict[obj] = var.get()
     return outdict
 
-def select_subgroup(mainlist,subunit="Subunits"):
+def select_subgroup(mainlist,subunit="Subunits",noscroll_max=20):
     outlist = []
     win = Tkinter.Toplevel()
-    if len(mainlist) > 40:
+    if len(mainlist) > noscroll_max:
         pygui = GoodPyGUI_scroll(win)
     else:
         pygui = GoodPyGUI(win)
@@ -204,13 +204,13 @@ def select_subgroup(mainlist,subunit="Subunits"):
     return outlist    
 
 
-def break_apart(superlist,title='Break Apart',caption='Select from group'):
+def break_apart(superlist,title='Break Apart',caption='Select from group',noscroll_max=20):
     outlist = []
     more_left = True
     while more_left:
         choicelist = []
         win = Tkinter.Toplevel()
-        if len(superlist) > 40:
+        if len(superlist) > noscroll_max:
             pygui = GoodPyGUI_scroll(win)
         else:
             pygui = GoodPyGUI(win)
@@ -242,9 +242,9 @@ def break_apart(superlist,title='Break Apart',caption='Select from group'):
         win.destroy()
     return outlist
 
-def establish_type(mainlist,typedict,buttons):
+def establish_type(mainlist,typedict,buttons,noscroll_max=20):
     win = Tkinter.Toplevel()
-    if len(mainlist) > 40:
+    if len(mainlist) > noscroll_max=:
         pygui = GoodPyGUI_scroll(win)
     else:
         pygui = GoodPyGUI(win)
