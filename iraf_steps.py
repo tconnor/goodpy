@@ -23,7 +23,7 @@ def reduce_dimensions(filename):
 def bias_correct(file_list,xmin='18',xmax='4111',ymin='350',ymax='1570',bindefault=1):
     irf_prm.set_ccdproc(iraf.ccdproc)
     biassecs = {1:'[4114:4142,1:1896]',2:'[4114:4142,1:1896]',3:'[4114:4142,1:1896]',4:'[4114:4142,1:1896]'} #NEED UPDATED
-    iraf.ccdproc.biassec = biassecs[binsize]
+    #iraf.ccdproc.biassec = biassecs[binsize]
     iraf.ccdproc.trimsec = '['+xmin+':'+xmax+','+ymin+':'+ymax+']'
     for ff in file_list:
         comm = scnd.get_comment(ff,'PARAM18')
