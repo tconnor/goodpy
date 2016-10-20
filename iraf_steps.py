@@ -1,6 +1,7 @@
 from pyraf import iraf
 import iraf_parameters as irf_prm
-import secondary_tasks as scnd
+import fits_tools as ftl
+
 def gui_alert():
     print 'An IRAF GUI has been opened and requires your input'
     
@@ -26,11 +27,11 @@ def bias_correct(file_list,xmin='18',xmax='4111',ymin='350',ymax='1570',bindefau
     #iraf.ccdproc.biassec = biassecs[binsize]
     iraf.ccdproc.trimsec = '['+xmin+':'+xmax+','+ymin+':'+ymax+']'
     for ff in file_list:
-        comm = scnd.get_comment(ff,'PARAM18')
+        comm = ftl.get_comment(ff,'PARAM18')
         if comm == '1 / Serial Binning,Pixels':
             binsize = iraf.hselect(ff,'PARAM18','yes')
         else:
-            param_name = scnd.find_param_with_comment(ff,'1 / Serial Binning,Pixels')
+            param_name = ftl.find_param_with_comment(ff,'1 / Serial Binning,Pixels')
             if param_name == 'NullReturn':
                 binsize=bindefault
             else:
