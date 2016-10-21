@@ -58,6 +58,7 @@ def main():
     #Step 3: Transform to uniform wavelength grid
     #This is where arc_coords should be established
     object_match = gui.find_single_match(science_list,calib_list,title='Arc Match',caption_tail=' Arc Selection')
+    guesses = ftl.guess_dxvals(science_list[0])
     arc_list = f_man.find_uniques_from_dict(object_match,science_list)
     arc_fc_dict =  f_man.make_fcname(arc_list)
     std_list = gui.select_subgroup(science_list,subunit="Standard Stars")
@@ -65,10 +66,11 @@ def main():
     supplement_list = gui.select_subgroup(non_std,subunit="Supplementary Dispersion Frames")
     irf_stp.standard_trace(std_list,supplement_list)
     irf_stp.make_lambda_solution(arc_list,arc_fc_dict)
-    guesses = ftl.guess_dxvals(file_list[0])
+    guesses = ftl.guess_dxvals(science_list[0])
     dx_vals = gui.user_float_inputs(['x1','x2','dx'],guesses)
     arc_coords = dato.get_dx_params(arc_list,use_fixed=True,x1=dx_vals[0],x2=dx_vals[1],dx=dx_vals[2])
     irf_stp.transform(science_list,object_match,arc_fc_dict,arc_coords)
+    f_man.bell() #Alert user
 
 
     #Step 4: Make Standard star maps

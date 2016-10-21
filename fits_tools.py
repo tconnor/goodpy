@@ -54,6 +54,8 @@ def guess_dxvals(filename):
             grate_val = float(grting)
             
     x1,xcent,x2 = gdmn.approximate_lambda(grate_val,grt_ang,cam_ang)
+    x1 *= 10. #nm to Angstroms
+    x2 *= 10. #nm to Angstroms
     return x1,x2,dx
 
 
