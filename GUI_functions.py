@@ -273,3 +273,50 @@ def test_routine():
     break_apart(superlist)
 
 
+def user_float_inputs(mainlist,guesses,title='Select Output Spectrum Parameters',noscroll_max=20):
+    win = Tkinter.Toplevel()
+    if len(mainlist) > noscroll_max:
+        pygui = GoodPyGUI_scroll(win)
+    else:
+        pygui = GoodPyGUI(win)
+    pygui.set_title(win,title)
+    pygui.add_caption(win,title)
+    entries = {}
+    abortvar = Tkinter.IntVar()
+    for ii in range(len(mainlist)):
+        choice = mainlist[ii]
+        try:
+            guess = guesses[ii]
+        except IndexError:
+            guess = guesses[0]
+            print 'Number of guesses doesnt match number of options. Proceeding.'
+        row = Tkinter.Frame(win)
+        lab = Tkinter.Label(row, width=22, text=choice+": ", anchor='w')
+        ent = Tkinter.Entry(row)
+        ent.insert(0,"{}".format(guess))
+        row.pack(side=Tkinter.TOP, fill=Tkinter.X, padx=5, pady=5)
+        lab.pack(side=Tkinter.LEFT)
+        ent.pack(side=Tkinter.RIGHT, expand=Tkinter.YES, fill=Tkinter.X)
+        entries[choice] = ent
+    pygui.add_close_button(win,'Confirm')
+    not_ready = True
+    while not_ready:
+        outlist = []
+        hangup = False
+        win.mainloop()
+        for choice in mainlist:
+            value = entries[choice].get()
+            try:
+                check_test = float(value)
+                outlist.append(value)
+            except ValueError:
+                hangup = True
+                print choice+' must be a float'
+        if not hangup:
+            not_ready = False
+    win.destroy()
+    return outlist    
+
+
+
+user_float_inputs(mainlist,guesses,title='Select Output Spectrum Parameters',noscroll_max=20)

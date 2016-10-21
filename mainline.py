@@ -65,7 +65,9 @@ def main():
     supplement_list = gui.select_subgroup(non_std,subunit="Supplementary Dispersion Frames")
     irf_stp.standard_trace(std_list,supplement_list)
     irf_stp.make_lambda_solution(arc_list,arc_fc_dict)
-    arc_coords = dato.get_dx_params(arc_list,use_fixed=True,x1=4800,x2=7200,dx=0.65)
+    guesses = ftl.guess_dxvals(file_list[0])
+    dx_vals = gui.user_float_inputs(['x1','x2','dx'],guesses)
+    arc_coords = dato.get_dx_params(arc_list,use_fixed=True,x1=dx_vals[0],x2=dx_vals[1],dx=dx_vals[2])
     irf_stp.transform(science_list,object_match,arc_fc_dict,arc_coords)
 
 

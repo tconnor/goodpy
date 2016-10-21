@@ -8,7 +8,8 @@ except ImportError:
     except ImportError:
         has_pf = False
         print ' Operating under the assumption that neither astropy nor pyfits are installed'
-        
+import goodman_functions as gdmn
+
 def observation_type(filename):
     splitname = filename.split('.')
     foo = splitname.pop(0)
@@ -32,6 +33,29 @@ def observation_type(filename):
     else:
         type = 'obj'
         return type
+
+
+def guess_dxvals(filename):
+    if has_pf:
+        with pf.open(filename,mode='readonly') as hdulist:
+            grating = hdulist[0].header['GRATING']
+            cam_ang = hdulist[0].header['CAM_ANG']
+            grt_ang = hdulist[0].header['GRT_ANG']
+    else:
+        grating = get_value_pyraf(filename,'GRATING')
+        cam_ang = get_value_pyraf(filename,'CAM_ANG')
+        grt_ang = get_value_pyraf(filename,'GRT_ANG')
+    grating_dict = {'600':0.65,'400':1.0,'300':1.33,'1200':0.333}
+    dx = 1.0
+    grate_val = 400
+    for grting in grating_dict:
+        if grting in grating:
+            dx = grating_dict[grting]
+            grate_val = float(grting)
+            
+    x1,xcent,x2 = gdmn.approximate_lambda(grate_val,grt_ang,cam_ang)
+    return x1,x2,dx
+
 
 def fits_head_observation_type(filename):
     if has_pf:
