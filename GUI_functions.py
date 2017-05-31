@@ -317,6 +317,64 @@ def user_float_inputs(mainlist,guesses,title='Select Output Spectrum Parameters'
     win.destroy()
     return outlist    
 
+def user_int_input(guess,title='Number Requested',choice='Input'):
+    win = Tkinter.Toplevel()
+    pygui = GoodPyGUI(win)
+    pygui.set_title(win,title)
+    pygui.add_caption(win,title)
+    entries = {}
+    abortvar = Tkinter.IntVar()
+    row = Tkinter.Frame(win)
+    lab = Tkinter.Label(row, width=22, text=choice+": ", anchor='w')
+    ent = Tkinter.Entry(row)
+    ent.insert(0,"{}".format(guess))
+    row.pack(side=Tkinter.TOP, fill=Tkinter.X, padx=5, pady=5)
+    lab.pack(side=Tkinter.LEFT)
+    ent.pack(side=Tkinter.RIGHT, expand=Tkinter.YES, fill=Tkinter.X)
+    entries[choice] = ent
+    pygui.add_close_button(win,'Confirm')
+    not_ready = True
+    while not_ready:
+        hangup = False
+        win.mainloop()
+        value = entries[choice].get()
+        try:
+            check_test = int(value)
+        except ValueError:
+            hangup = True
+            print choice+' must be an integer'
+        if not hangup:
+            not_ready = False
+    win.destroy()
+    return int(value)
+
+def get_boolean(title='Should We?'):
+    associate = ['Yes','No']
+    win = Tkinter.Toplevel()
+    pygui = GoodPyGUI(win)
+    pygui.set_title(win,title)
+    pygui.add_caption(win,title)
+    entries = {}
+    abortvar = Tkinter.IntVar()
+    obj_match = []
+    var=Tkinter.StringVar()
+    for assoc in associate:
+        pygui.add_radiobutton(win,assoc,var)
+    pygui.add_close_button(win,'Confirm')
+    needs_match = True
+    while needs_match:
+        win.mainloop()
+        if var.get() not in associate:
+            print 'You need to select an object!'
+        else:
+            needs_match=False
+    win.destroy()
+    choice = var.get()
+    print choice
+    if choice == 'Yes': return True
+    else: return False
+
+
 
 
 #user_float_inputs(mainlist,guesses,title='Select Output Spectrum Parameters',noscroll_max=20)

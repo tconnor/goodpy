@@ -58,7 +58,41 @@ def guess_dxvals(filename):
     x2 *= 10. #nm to Angstroms
     return x1,x2,dx
 
-
+def guess_mode(filelist,g_ang_tol = 0.2,c_ang_tol=0.2):
+    '''Runs through all of the files. Tries to guess if they were
+    obtained in different modes'''
+    first = True
+    for filename in filelist:
+        if has_pf:
+            with pf.open(filename,mode='readonly') as hdulist:
+                grating = hdulist[0].header['GRATING']
+                cam_ang = hdulist[0].header['CAM_ANG']
+                grt_ang = hdulist[0].header['GRT_ANG']
+        else:
+            grating = get_value_pyraf(filename,'GRATING')
+            cam_ang = get_value_pyraf(filename,'CAM_ANG')
+            grt_ang = get_value_pyraf(filename,'GRT_ANG')
+        if first:
+            modes = {0:[grating,cam_ang,grt_ang]}
+            file_modes = {filename:0}
+            nmodes = 1
+            first = False
+        else:
+            matched = False
+            for mode_choice in range(nmodes):
+                del_grat = np.abs(grt_ang - modes[mode_choice][2])
+                del_cam = np.abs(cam_ang - modes[mode_choice][1])
+                if (del_grat < g_ang_tol and del_cam < c_ang_tol
+                    and grating == modes[mode_choice][0]):
+                    file_modes[filename] = mode_choice
+                    matched = True
+                    break
+            if not matched:
+                modes[0+nmodes] = [grating, cam_ang, grt_ang]
+                file_modes[filename] = nmodes + 0
+                nmodes +=1
+    return file_modes, nmodes
+                                             
 def fits_head_observation_type(filename):
     if has_pf:
         with pf.open(filename,mode='readonly') as hdulist:
