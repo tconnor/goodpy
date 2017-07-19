@@ -13,7 +13,10 @@ reduction steps one-by-one.
 
 Requirements
 =====
-Pyraf
-Pyfits or Astropy.fits
-Numpy
-tkinter
+  *Pyraf
+  *Pyfits or Astropy.fits
+  *Numpy
+  *tkinter
+
+
+
