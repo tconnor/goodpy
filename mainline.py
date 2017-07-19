@@ -108,8 +108,12 @@ def main():
     f_man.make_and_move(science_list,'FLUX')
     f_man.prepend_list(science_list,'s')
     f_man.make_and_move(science_list,'BKG')
+    
+    #Display total time to complete
     t1 = time()
-    print 'Time: '+str(t1-t0)
+    tmin = int( np.floor( (t1 - t0) / 60.) )
+    tsec = (t1 - t0) % 60
+    print 'Time: {0:2d}:{1:05.2f}'.format(tmin,tsec)
 
 
 
