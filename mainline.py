@@ -26,7 +26,7 @@ def main():
     flat-fielded, wavelength calibrated, flux calibrated (modulo
     having a good standard star), background subtracted 2D images.
 
-    To save the end user time, if something fails -- or if the user
+    To save the end-user time, if something fails -- or if the user
     manually aborts -- they can resume from where they were using a
     parameter file. For more information on this, see logfile.py.
     Because of this, variables are stored in the pm. namespace, and
@@ -61,16 +61,16 @@ def main():
         need_modes = gui.get_boolean('Are there multiple observing modes?')
         if need_modes:
             file_modes, nmodes = ftl.guess_mode(pm.filelist)
-            nmodes_user = user_int_input(guess,title='Number Requested',choice='Input')
+            nmodes_user = user_int_input(guess,title='Number of Modes')
             if nmodes_user > nmodes:
-                print 'Could not automatically detect all modes.'
+                print 'Could not automatically detect all modes. User input needed.'
                 nmodes = nmodes_user + 0
             elif nmodes > nmodes_user:
                 print 'Found more modes than expected. Confirm all choices.'
             else:
                 print 'Same number of modes detected. Please confirm all choices.'
             #gui.establish_type(pm.file_list,typedict,
-            #                             ['focus','img','fear','qtz','obj'])
+            #                             range(nmodes))
             #
             #Sort into different observing modes
             #If needed to do this, dump new param files to each and abort
@@ -182,11 +182,15 @@ def main():
         f_man.make_and_move(science_list,'FLUX')
         f_man.prepend_list(science_list,'s')
         f_man.make_and_move(science_list,'BKG')
-        t1 = time()
-        print 'Time: '+str(t1-t0)
+
         lgf.write_param('step_five',True,p_type='boolean')
 
 
+    #Display total time to complete
+    t1 = time()
+    tmin = int( np.floor( (t1 - t0) / 60.) )
+    tsec = (t1 - t0) % 60
+    print 'Time: {0:2d}:{1:05.2f}'.format(tmin,tsec)
 
 
 
