@@ -1,3 +1,4 @@
+import numpy as np
 try:
     import pyfits as pf
     has_pf = True

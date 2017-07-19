@@ -35,11 +35,14 @@ def write_param(param_name,param_vals,
     i = open(outname,'r')
     t = tempfile.NamedTemporaryFile(mode='r+')
     for line in i:
-        incomment = line.split('#')[1].strip()
-        if incomment != comment:
+        if '#' not in line:
             t.write(line)
         else:
-            pass
+            incomment = line.split('#')[1].strip()
+            if incomment != comment:
+                t.write(line)
+            else:
+                pass
     
     t.write('{0} = '.format(param_name))
     if p_type == 'string':
@@ -67,7 +70,7 @@ def write_param(param_name,param_vals,
                 t.write('"{0}":'.format(pkey))
             else:
                 t.write('{0}:'.format(pkey))
-            if type(param_vals[pkey]) == type('string')
+            if type(param_vals[pkey]) == type('string'):
                 t.write('"{0}",'.format(param_vals[pkey]))
             else:
                 t.write('{0},'.format(param_vals[pkey])) 

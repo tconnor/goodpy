@@ -50,7 +50,7 @@ def main():
         pm.typedict = {}
         for file,obj in zip(pm.file_list,pm.obj_list):
             pm.typedict[file.split('.')[0]] = obj
-        pm.typedict = gui.establish_type(pm.file_list,typedict,
+        pm.typedict = gui.establish_type(pm.file_list,pm.typedict,
                                          ['focus','img','fear','qtz','obj'])
         print pm.typedict
         lgf.write_param('typedict',pm.typedict,p_type='dict')
@@ -60,8 +60,8 @@ def main():
         f_man.bell() #Alert user
         need_modes = gui.get_boolean('Are there multiple observing modes?')
         if need_modes:
-            file_modes, nmodes = ftl.guess_mode(pm.filelist)
-            nmodes_user = user_int_input(guess,title='Number of Modes')
+            file_modes, nmodes = ftl.guess_mode(pm.file_list)
+            nmodes_user = gui.user_int_input(guess=1,title='Number of Modes')
             if nmodes_user > nmodes:
                 print 'Could not automatically detect all modes. User input needed.'
                 nmodes = nmodes_user + 0

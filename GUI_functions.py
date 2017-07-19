@@ -244,6 +244,7 @@ def break_apart(superlist,title='Break Apart',caption='Select from group',noscro
 
 def establish_type(mainlist,typedict,buttons,noscroll_max=20):
     win = Tkinter.Toplevel()
+    print 'A GUI has been opened'
     if len(mainlist) > noscroll_max:
         pygui = GoodPyGUI_scroll(win)
     else:
@@ -317,7 +318,7 @@ def user_float_inputs(mainlist,guesses,title='Select Output Spectrum Parameters'
     win.destroy()
     return outlist    
 
-def user_int_input(guess,title='Number Requested',choice='Input'):
+def user_int_input(guess=0,title='Number Requested',choice='Input'):
     win = Tkinter.Toplevel()
     pygui = GoodPyGUI(win)
     pygui.set_title(win,title)
