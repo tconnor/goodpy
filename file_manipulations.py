@@ -1,6 +1,7 @@
 import os
 import shutil
 import glob
+import logfile as lgf
 
 def make_directory(direc,silent=False,force_overwrite=True,notify=False,outmessage='Directory Created',append_dir=False):
     '''Makes a directory at location "direc"
@@ -145,4 +146,23 @@ def bell():
 
 def gui_alert():
     print 'An IRAF GUI has been opened and requires your input'
+    return
+
+def sort_modes(modes_dict,file_list,obj_list,typedict,mode):
+    out_file_list = []
+    out_obj_list = []
+    out_type_dict = {}
+    for flnm in file_list:
+        shrt = flnm.split('.')[0]
+        if modes_dict[shrt] != mode:
+            continue
+        out_file_list.append(flnm)
+        out_obj_list.append(typedict[shrt])
+        out_type_dict[shrt] = typedict[shrt]
+    direc= '{}_Mode'.format(mode)
+    if len(out_file_list) >= 1:
+        #This check is necessary in case the guess finds a mode but
+        #the user says there isn't one. This prevents a crash
+        make_and_move(out_file_list,direc)
+        lgf.dump_mode(direc,out_file_list,out_obj_list,out_type_dict)
     return

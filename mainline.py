@@ -1,3 +1,4 @@
+import sys
 import os
 if 'PYRAF_BETA_STATUS' in os.environ:
     if os.environ.get('PYRAF_BETA_STATUS') == '1':
@@ -69,12 +70,15 @@ def main():
                 print 'Found more modes than expected. Confirm all choices.'
             else:
                 print 'Same number of modes detected. Please confirm all choices.'
-            #gui.establish_type(pm.file_list,typedict,
-            #                             range(nmodes))
-            #
-            #Sort into different observing modes
-            #If needed to do this, dump new param files to each and abort
-            pass
+            print file_modes
+            modes_dict = gui.establish_type(pm.file_list,file_modes,range(nmodes))
+            print modes_dict
+            for mode in range(nmodes):
+                f_man.sort_modes(modes_dict,pm.file_list,
+                                 pm.obj_list,pm.typedict,mode)
+
+            sys.exit('Modes Separated. Resume reduction'+
+                    ' in individual directories')
         lgf.write_param('step_one_a',True,p_type='boolean')
 
     if not pm.step_one_b:

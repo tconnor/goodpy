@@ -64,6 +64,7 @@ def guess_mode(filelist,g_ang_tol = 0.2,c_ang_tol=0.2):
     obtained in different modes'''
     first = True
     for filename in filelist:
+        shortname = filename.split('.')[0]
         if has_pf:
             with pf.open(filename,mode='readonly') as hdulist:
                 grating = hdulist[0].header['GRATING']
@@ -75,7 +76,7 @@ def guess_mode(filelist,g_ang_tol = 0.2,c_ang_tol=0.2):
             grt_ang = get_value_pyraf(filename,'GRT_ANG')
         if first:
             modes = {0:[grating,cam_ang,grt_ang]}
-            file_modes = {filename:0}
+            file_modes = {shortname:0}
             nmodes = 1
             first = False
         else:
@@ -85,12 +86,12 @@ def guess_mode(filelist,g_ang_tol = 0.2,c_ang_tol=0.2):
                 del_cam = np.abs(cam_ang - modes[mode_choice][1])
                 if (del_grat < g_ang_tol and del_cam < c_ang_tol
                     and grating == modes[mode_choice][0]):
-                    file_modes[filename] = mode_choice
+                    file_modes[shortname] = mode_choice
                     matched = True
                     break
             if not matched:
                 modes[0+nmodes] = [grating, cam_ang, grt_ang]
-                file_modes[filename] = nmodes + 0
+                file_modes[shortname] = nmodes + 0
                 nmodes +=1
     return file_modes, nmodes
                                              

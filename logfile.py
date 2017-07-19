@@ -14,8 +14,6 @@ def dump(filename = 'goodpy_params.py'):
 
 def dump_mode(direc,file_list,obj_list,type_dict):
     dump(filename='{0}/goodpy_params.py'.format(direc))
-    outf.write('#GoodPy Parameter File \n')
-    outf.close()
     write_param('file_list',file_list,p_type='list',
                 outname='{0}/goodpy_params.py'.format(direc))
     write_param('obj_list',obj_list,p_type='list',
