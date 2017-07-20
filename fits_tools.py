@@ -194,3 +194,27 @@ def get_value_pyraf(filename,paramname):
             pass
     return 'NullReturn'
 
+def get_theta(wnartifact,quartzlist):
+    exptimes,gains = [],[]
+    for filename in quartzlist:
+        if has_pf:
+            with pf.open(filename,mode='readonly') as hdulist:
+                exptime = hdulist[0].header['EXPTIME']
+                gain = hdulist[0].header['GAIN']
+        else:
+            exptime = get_value_pyraf(filename,'EXPTIME')
+            gain = get_value_pyraf(filename,'GAIN')
+        gains.append(gain)
+        exptimes.append(exptime)
+    if has_pf:
+        with pf.open(wnartifact,mode='readonly') as hdulist:
+                exptime = hdulist[0].header['EXPTIME']
+    else:
+        exptime = get_value_pyraf(wnartifact,'EXPTIME')
+    thetas = [exp / exptime / gn for exp,gn in zip(exptimes,gains)]
+    if len(set(thetas)) == 1:
+        #All have the same Theta, only have to make one wn image
+        return True, thetas
+    else:
+        #Different settings, so different wn images
+        return False, thetas

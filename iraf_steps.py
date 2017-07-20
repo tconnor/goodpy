@@ -11,6 +11,7 @@ def initialize_iraf():
     iraf.ccdred(_doprint=0)
     iraf.specred(_doprint=0)
     iraf.twodspec(_doprint=0)
+    iraf.apextract(_doprint=0)
     iraf.longslit(_doprint=0)
     return
 
@@ -39,6 +40,29 @@ def bias_correct(file_list,xmin='18',xmax='4111',ymin='350',ymax='1570',bindefau
         iraf.ccdproc.biassec = biassecs[binsize]
         output = 'b'+ff
         iraf.ccdproc(images=ff,output=output,ccdtype = "")
+    return
+
+def artifact_imcombine(inlist,outname):
+    imcinpt = ''
+    for obj in inlist:
+        imcinpt += obj +','
+    imcinpt = imcinpt[:-1] #Drop trailing comma
+    iraf.imcombine(input=imcinpt,output=outname,sigmas=outname+'_sig',combine='median')
+    return
+
+def normalize_artifact(artifact,nartifact):
+    irf_prm.set_apflatten(iraf.apflatten)
+    iraf.apflatten(input=artifact,output=nartifact)
+    
+def artifact_create(artifact,theta,output):
+    iraf.imarith(operand1=artifact,operand2=theta,op='*',result='tmpartifact.fits')
+    iraf.imarith(operand1='tmpartifact.fits',operand2=1-theta,op='+',result=output)
+    iraf.imdelete(images='tmpartifact.fits',go_ahead='yes',verify='no')
+    return
+
+def correct_artifact(wnartifact,quartz_list):
+    for qtz in quartz_list:
+        iraf.imarith(operand1=qtz,operand2=wnartifact,op='/',result='a'+qtz)
     return
 
 def normalize_quartzes(quartz_list):

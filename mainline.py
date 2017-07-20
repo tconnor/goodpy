@@ -104,33 +104,52 @@ def main():
         f_man.bell() #Alert user
 
         art_cor = gui.get_boolean('Are you correcting for the QTZ artifact?')
-        if art_cor:
+        while art_cor:
             subunit = "Quartz Artifact Frames"
             artifact_list = gui.select_subgroup(pm.quartz_list,
                                                 subunit=subunit)
+            pm.quartz_list = f_man.separate_artifact_quartz(artifact_list,
+                                                            pm.quartz_list)
             if len(artifact_list) == 0:
                 print 'No Artifact frames; skipping'
-                continue
+                break
             elif len(artifact_list) > 1:
-                #imcombine,
-                #artifact = XXX
-                pass
+                artifact='qtz_artifact.fits'
+                irf_stp.artifact_imcombine(artifact_list,artifact)
             else:
                 artifact = artifact_list[0]
-            #get Theta
-            #Make tmp image
-            #make weighted, normalized arc image
-            #divide all qtz images by wnq image
-            #move to new folder, prepend list
-            pass
+            nartifact = 'nartifact.fits'
+            irf_stp.normalize_artifact(artifact,nartifact)
+            
+            wnartifact = 'wnartifact.fits'
+
+            one_theta, thetas = ftl.get_theta(wnartifact,pm.quartzlist)
+            if one_theta:
+                theta = thetas[0]
+                irf_stp.artifact_create(nartifact,theta,wnartifact)
+                irf_stp.correct_artifact(wnartifact,pm.quartz_list)     #####ACTION ITEM########
+            else:
+                for ii in range(pm.quartzlist):
+                    theta = thetas[ii]
+                    irf_stp.artifact_create(nartifact,theta,wnartifact)
+                    irf_stp.correct_artifact(wnartifact,pm.quartz_list[ii])
+            f_man.make_and_move(artifact_list+
+                                [artifact,nartifact,wnartifact],'ARTIFACT')
+            pm.quartz_list = f_man.prepend_list(pm.quartz_list,'a')
+            break
+
+        lgf.write_param('file_list',pm.file_list,p_type='list')
+        lgf.write_param('quartz_list',pm.quartz_list,p_type='list')
+        lgf.write_param('calib_list',pm.calib_list,p_type='list')
+        lgf.write_param('science_list',pm.science_list,p_type='list')
         lgf.write_param('step_two_a',True,p_type='boolean')
 
     if not pm.step_two_b:
-        irf_stp.normalize_quartzes(quartz_list)
+        irf_stp.normalize_quartzes(pm.quartz_list)
         if art_cor:
-            f_man.make_and_move(quartz_list,'ARCQTZ')
+            f_man.make_and_move(pm.quartz_list,'ARCQTZ')
         else:
-            f_man.make_and_move(quartz_list,'BIAS')            
+            f_man.make_and_move(pm.quartz_list,'BIAS')            
         quartz_list = f_man.prepend_list(quartz_list,'n')
         object_match = gui.find_match(science_list,quartz_list,
                                       title="Quartz Match",

@@ -24,6 +24,41 @@ def set_ccdproc(ccdproc):
     ccdproc.ccdtype = None
     return
 
+def set_apflatten(apflatten):
+    apflatten.input = None #'List of images to flatten'
+    apflatten.output = None #'List of output flatten images'
+    apflatten.apertures = "" #'Apertures'
+    apflatten.references = "" #'List of reference images'
+    apflatten.interactive = "Yes" #'Run task interactively?'
+    apflatten.find = "No" #'Find apertures?'
+    apflatten.recenter = "No" #'Recenter apertures?'
+    apflatten.resize = "No" #'Resize apertures?'
+    apflatten.edit = "Yes" #'Edit apertures?'
+    apflatten.trace = "No" #'Trace apertures?'
+    apflatten.fittrace = "No" #'Fit traced points interactively?'
+    apflatten.flatten = "Yes" #'Flatten spectra?'
+    apflatten.fitspec = "Yes" #'Fit normalization spectra interactively?'
+    apflatten.line = "INDEF" #'Dispersion line'
+    apflatten.nsum = 10 #'Number of dispersion lines to sum or median'
+    apflatten.threshold = 10.0 #'Threshold for flattening spectra'
+    apflatten.pfit = "fit1d" #'|fit1d|fit2d|',,'Profile fitting type (fit1d|fit2d)'
+    apflatten.clean = "No" #'Detect and replace bad pixels?'
+    apflatten.saturation = "INDEF" #'Saturation level'
+    apflatten.readnoise = 0 #'Read out noise sigma (photons)'
+    apflatten.gain = 1 #'Photon gain (photons/data number)'
+    apflatten.lsigma = 4.0 #'Lower rejection threshold'
+    apflatten.usigma = 4.0 #'Upper rejection threshold'
+    apflatten.function = "legendre" #'|chebyshev|legendre|spline1|spline3|',,'Fitting function for normalization spectra'
+    apflatten.order = 5 #'Fitting function order'
+    apflatten.sample = 4142 #'Sample regions'
+    apflatten.naverage = -5 #'Average or median' Positive values are for averages and negative points for medians. 
+    apflatten.niterate = 5 #'Number of rejection iterations'
+    apflatten.low_reject = 3 #'Lower rejection sigma'
+    apflatten.high_reject = 1 #'High upper rejection sigma'
+    apflatten.grow = 0 #'Rejection growing radius'
+    apflatten.mode = "" #'al'
+    return
+
 def set_response(response):
     #noao>twodspec>longslit>response
     response.interac = 'Yes'
