@@ -96,13 +96,41 @@ def main():
 
 
     #Step 2: Flatfield 
-    if not pm.step_two:
+    if not pm.step_two_a:
         pm.file_list = f_man.prepend_list(pm.file_list,'b')
-        [quartz_list, calib_list,
-          science_list] = f_man.type_list(pm.file_list,pm.typedict,ignore='b')
+        [pm.quartz_list, pm.calib_list,
+          pm.science_list] = f_man.type_list(pm.file_list,
+                                             pm.typedict,ignore='b')
         f_man.bell() #Alert user
+
+        art_cor = gui.get_boolean('Are you correcting for the QTZ artifact?')
+        if art_cor:
+            subunit = "Quartz Artifact Frames"
+            artifact_list = gui.select_subgroup(pm.quartz_list,
+                                                subunit=subunit)
+            if len(artifact_list) == 0:
+                print 'No Artifact frames; skipping'
+                continue
+            elif len(artifact_list) > 1:
+                #imcombine,
+                #artifact = XXX
+                pass
+            else:
+                artifact = artifact_list[0]
+            #get Theta
+            #Make tmp image
+            #make weighted, normalized arc image
+            #divide all qtz images by wnq image
+            #move to new folder, prepend list
+            pass
+        lgf.write_param('step_two_a',True,p_type='boolean')
+
+    if not pm.step_two_b:
         irf_stp.normalize_quartzes(quartz_list)
-        f_man.make_and_move(quartz_list,'BIAS')
+        if art_cor:
+            f_man.make_and_move(quartz_list,'ARCQTZ')
+        else:
+            f_man.make_and_move(quartz_list,'BIAS')            
         quartz_list = f_man.prepend_list(quartz_list,'n')
         object_match = gui.find_match(science_list,quartz_list,
                                       title="Quartz Match",
@@ -111,7 +139,7 @@ def main():
         f_man.move_file_list(science_list,'BIAS')
         science_list = f_man.prepend_list(science_list,'f')
         f_man.make_and_move(quartz_list,'QTZ')
-        lgf.write_param('step_two',True,p_type='boolean')
+        lgf.write_param('step_two_b',True,p_type='boolean')
 
     #Step 3: Transform to uniform wavelength grid
     #This is where arc_coords should be established
