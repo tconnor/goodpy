@@ -150,54 +150,60 @@ def main():
             f_man.make_and_move(pm.quartz_list,'ARCQTZ')
         else:
             f_man.make_and_move(pm.quartz_list,'BIAS')            
-        quartz_list = f_man.prepend_list(quartz_list,'n')
-        object_match = gui.find_match(science_list,quartz_list,
+        pm.quartz_list = f_man.prepend_list(pm.quartz_list,'n')
+        object_match = gui.find_match(pm.science_list,pm.quartz_list,
                                       title="Quartz Match",
                                       caption_tail=' QTZ Selection')
-        irf_stp.quartz_divide(science_list,object_match)
-        f_man.move_file_list(science_list,'BIAS')
-        science_list = f_man.prepend_list(science_list,'f')
-        f_man.make_and_move(quartz_list,'QTZ')
+        irf_stp.quartz_divide(pm.science_list,object_match)
+        f_man.move_file_list(pm.science_list,'BIAS')
+        pm.science_list = f_man.prepend_list(pm.science_list,'f')
+        f_man.make_and_move(pm.quartz_list,'QTZ')
+
+        lgf.write_param('science_list',pm.science_list,p_type='list')
         lgf.write_param('step_two_b',True,p_type='boolean')
 
     #Step 3: Transform to uniform wavelength grid
-    #This is where arc_coords should be established
     if not pm.step_three:
-        object_match = gui.find_single_match(science_list,
-                                             calib_list,
+        #Check if linelist exists
+        #if not, write linelist
+        if not f_man.check_for_file('linelist'):
+            f_man.write_linelist('linelist')
+        object_match = gui.find_single_match(pm.science_list,
+                                             pm.calib_list,
                                              title='Arc Match',
                                              caption_tail=' Arc Selection')
-        guesses = ftl.guess_dxvals(science_list[0])
-        arc_list = f_man.find_uniques_from_dict(object_match,science_list)
+        guesses = ftl.guess_dxvals(pm.science_list[0])
+        arc_list = f_man.find_uniques_from_dict(object_match,pm.science_list)
         arc_fc_dict =  f_man.make_fcname(arc_list)
-        std_list = gui.select_subgroup(science_list,
+        pm.std_list = gui.select_subgroup(pm.science_list,
                                        subunit="Standard Stars")
-        non_std = [fits for fits in science_list if fits not in std_list]
+        non_std = [fits for fits in pm.science_list if fits not in pm.std_list]
         subunit = "Supplementary Dispersion Frames"
         supplement_list = gui.select_subgroup(non_std,subunit=subunit)
-        irf_stp.standard_trace(std_list,supplement_list)
+        irf_stp.standard_trace(pm.std_list,supplement_list)
         irf_stp.make_lambda_solution(arc_list,arc_fc_dict)
-        guesses = ftl.guess_dxvals(science_list[0])
+        guesses = ftl.guess_dxvals(pm.science_list[0])
         dx_vals = gui.user_float_inputs(['x1','x2','dx'],guesses)
         arc_coords = dato.get_dx_params(arc_list,use_fixed=True,
                                         x1=dx_vals[0],x2=dx_vals[1],
                                         dx=dx_vals[2])
-        irf_stp.transform(science_list,object_match,arc_fc_dict,arc_coords)
+        irf_stp.transform(pm.science_list,object_match,arc_fc_dict,arc_coords)
         f_man.bell() #Alert user
         lgf.write_param('step_three',True,p_type='boolean')
+        lgf.write_param('std_list',pm.std_list,p_type='list')
 
 
     #Step 4: Make Standard star maps
     if not pm.step_four:
-        f_man.make_and_move(calib_list,'CALIB')
-        f_man.make_and_move(science_list,'NORM')
-        science_list = f_man.prepend_list(non_std,'t')
-        std_list = f_man.prepend_list(std_list,'t')
+        f_man.make_and_move(pm.calib_list,'CALIB')
+        f_man.make_and_move(pm.science_list,'NORM')
+        pm.science_list = f_man.prepend_list(non_std,'t')
+        pm.std_list = f_man.prepend_list(pm.std_list,'t')
         caption = 'Select individual standard stars'
-        super_std = gui.break_apart(std_list,title='Standard Selection',
+        super_std = gui.break_apart(pm.std_list,title='Standard Selection',
                                     caption=caption)
         std_options = dato.std_options()
-        calib_stars = []
+        pm.calib_stars = []
         for stdl in super_std:
             stdidx = super_std.index(stdl)
             irf_stp.apall_std(stdl)
@@ -205,34 +211,38 @@ def main():
                                              caption_tail=' Star Name',
                                              title='Star Name')[stdl[0]]
             irf_stp.standard(stdl,std_name,stdidx)
-            calib_stars.append(std_name)
+            pm.calib_stars.append(std_name)
             irf_stp.sensfunc(stdidx)
-        f_man.make_and_move(std_list,'TRANS')
-        f_man.prepend_list(std_list,'s')
-        f_man.make_and_move(std_list,'STD')
+        f_man.make_and_move(pm.std_list,'TRANS')
+        f_man.prepend_list(pm.std_list,'s')
+        f_man.make_and_move(pm.std_list,'STD')
+        
+        lgf.write_param('science_list',pm.science_list,p_type='list')
+        lgf.write_param('std_list',pm.std_list,p_type='list')
+        lgf.write_param('calib_stars',pm.calib_stars,p_type='list')
         lgf.write_param('step_four',True,p_type='boolean')
 
 
     #Step 5: Flux calibrate, BKG subtract
     if not pm.step_five:
-        super_science = gui.break_apart(science_list,title='Object Selection',
+        super_science = gui.break_apart(pm.science_list,title='Object Selection',
                                         caption='Select individual objects')
         first_science = [obj[0] for obj in super_science]
         caption_tail = 'Standard Selection'
-        standard_match = gui.find_single_match(first_science,calib_stars,
+        standard_match = gui.find_single_match(first_science,pm.calib_stars,
                                                title='Standard Match',
                                                caption_tail=caption_tail)
         for obj in super_science:
-            stdidx = calib_stars.index(standard_match[obj[0]])
+            stdidx = pm.calib_stars.index(standard_match[obj[0]])
             irf_stp.flux_calibrate(obj,stdidx)
             irf_stp.background(obj)
             outname = obj[0].split('.')[1]
             irf_stp.imcombine(obj,outname)
-        f_man.make_and_move(science_list,'TRANS')
-        f_man.prepend_list(science_list,'l')
-        f_man.make_and_move(science_list,'FLUX')
-        f_man.prepend_list(science_list,'s')
-        f_man.make_and_move(science_list,'BKG')
+        f_man.make_and_move(pm.science_list,'TRANS')
+        f_man.prepend_list(pm.science_list,'l')
+        f_man.make_and_move(pm.science_list,'FLUX')
+        f_man.prepend_list(pm.science_list,'s')
+        f_man.make_and_move(pm.science_list,'BKG')
 
         lgf.write_param('step_five',True,p_type='boolean')
 
