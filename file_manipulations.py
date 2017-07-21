@@ -166,3 +166,33 @@ def sort_modes(modes_dict,file_list,obj_list,typedict,mode):
         make_and_move(out_file_list,direc)
         lgf.dump_mode(direc,out_file_list,out_obj_list,out_type_dict)
     return
+
+def check_for_file(filename):
+  
+    if os.path.isdir(filename):
+        #This isn't good; it's a directory!
+        return True #No better way to handle this...
+
+    if os.path.isfile(filename):
+        return True
+
+    else:
+        return False
+
+def write_linelist(outfile,lamp='fear'):
+    outfile = open(outfile,'w')
+    if lamp == 'fear':
+        lines = ['4045.8130','4158.5903','4259.3618','4277.5283','4325.7617',
+                 '4348.0640','4383.5444','4404.7500','4426.0010','4481.8105',
+                 '4545.0518','4579.3496','4589.8979','4609.5674','4657.9014',
+                 '4847.8095','4879.8635','4889.0422','4965.0795','5015.6779',
+                 '5141.7827','5162.2846','5187.7462','5495.8738','5558.7020',
+                 '5606.7330','5650.7043','5739.6210','5875.6210','5912.0853',
+                 '6032.1274','6114.9239','6172.2778','6416.3071','6677.2817',
+                 '6752.8335','6871.2891','6965.4307','7030.2514','7067.2181',
+                 '7147.0416','7272.9359','7383.9805','7503.8691','7514.6519',
+                 '7635.1060','7948.1763','8264.5225','8408.2100','8424.6475']
+    for line in lines:
+        outfile.write(line)
+        outfile.write('\n')
+    outfile.close()
