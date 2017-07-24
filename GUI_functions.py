@@ -91,6 +91,14 @@ class GoodPyGUI_scroll(Tkinter.Frame):
         self.text.window_create("end",align=Tkinter.BOTTOM,window=self.mapframe)
         #mapframe.pack()
 
+def center(toplevel):
+    toplevel.update_idletasks()
+    w = toplevel.winfo_screenwidth()
+    h = toplevel.winfo_screenheight()
+    size = tuple(int(_) for _ in toplevel.geometry().split('+')[0].split('x'))
+    x = w/2 - size[0]/2
+    y = h/2 - size[1]/2
+    toplevel.geometry("%dx%d+%d+%d" % (size + (x, y)))
 
 def find_match(principle, associate,title='GUI',caption_tail=' Selection',noscroll_max=20):
     '''Uses GoodPyGUI to list a selection of possible matches, and returns user selection'''
@@ -109,6 +117,7 @@ def find_match(principle, associate,title='GUI',caption_tail=' Selection',noscro
             scoredict = pygui.add_checkbox(win,assoc,scoredict)
         pygui.add_close_button(win,'Confirm')
         needs_match = True
+        center(win)
         while needs_match:
             win.mainloop()
             for assoc in associate:
@@ -155,6 +164,7 @@ def find_single_match(principle, associate,title='GUI',caption_tail=' Selection'
             pygui.add_radiobutton(win,assoc,var)
         pygui.add_close_button(win,'Confirm')
         needs_match = True
+        center(win)
         while needs_match:
             win.mainloop()
             if var.get() not in associate:
@@ -180,6 +190,7 @@ def select_subgroup(mainlist,subunit="Subunits",noscroll_max=20):
     pygui.add_specific_checkbox(win,'None in this List',abortvar)
     pygui.add_close_button(win,'Confirm')
     needs_match = True
+    center(win)
     while needs_match:
         win.mainloop()
         for choice in mainlist:
@@ -220,6 +231,7 @@ def break_apart(superlist,title='Break Apart',caption='Select from group',noscro
             scoredict = pygui.add_checkbox(win,obj,scoredict)
         pygui.add_close_button(win,'Confirm')
         needs_match = True
+        center(win)
         while needs_match:
             win.mainloop()
             dellist = []
@@ -258,6 +270,7 @@ def establish_type(mainlist,typedict,buttons,noscroll_max=20):
         outdict[f_obj] = Tkinter.Variable()
         pygui.add_radio_list(win,f_obj,buttons,outdict[f_obj],typedict[f_obj])
     pygui.add_close_button(win,'Confirm')
+    center(win)
     win.mainloop()
     for filename in mainlist:
         f_obj = filename.split('.')[0]
@@ -301,6 +314,7 @@ def user_float_inputs(mainlist,guesses,title='Select Output Spectrum Parameters'
         entries[choice] = ent
     pygui.add_close_button(win,'Confirm')
     not_ready = True
+    center(win)
     while not_ready:
         outlist = []
         hangup = False
@@ -335,6 +349,7 @@ def user_int_input(guess=0,title='Number Requested',choice='Input'):
     entries[choice] = ent
     pygui.add_close_button(win,'Confirm')
     not_ready = True
+    center(win)
     while not_ready:
         hangup = False
         win.mainloop()
@@ -363,6 +378,7 @@ def get_boolean(title='Should We?'):
         pygui.add_radiobutton(win,assoc,var)
     pygui.add_close_button(win,'Confirm')
     needs_match = True
+    center(win)
     while needs_match:
         win.mainloop()
         if var.get() not in associate:

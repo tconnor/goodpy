@@ -51,6 +51,13 @@ def artifact_imcombine(inlist,outname):
     return
 
 def normalize_artifact(artifact,nartifact):
+    print 'When you are prompt to edit aperture, you will be facing a '
+    print 'columns cut (usually) in the middle of the image without any'
+    print 'aperture. Include a new aperture in the center of the image'
+    print 'with "n" and resize the aperture to fit the entire range '
+    print '(I use "l" for lower and "u" for upper, in the borders),'
+    print 'Hit "q" and the fitting window will appear in place of '
+    print 'the aperture selection.'
     irf_prm.set_apflatten(iraf.apflatten)
     iraf.apflatten(input=artifact,output=nartifact)
     
