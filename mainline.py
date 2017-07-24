@@ -38,13 +38,39 @@ def main():
 
     t0 = time()
 
-    if not pm.step_one_a: run_step_one_a()
-    if not pm.step_one_b: run_step_one_b()
-    if not pm.step_two_a: run_step_two_a()
-    if not pm.step_two_b: run_step_two_b()
-    if not pm.step_three: run_step_three()
-    if not pm.step_four: run_step_four()
-    if not pm.step_five: run_step_five()
+    try:
+        if not pm.step_one_a: run_step_one_a()
+    except KeyboardInterrupt:
+        lgf.step_one_a_error()
+    try:
+        if not pm.step_one_b: run_step_one_b()
+    except KeyboardInterrupt:
+        lgf.step_one_b_error()
+        
+    try:
+        if not pm.step_two_a: run_step_two_a()
+    except KeyboardInterrupt:
+        lgf.step_two_a_error()
+    try:
+        if not pm.step_two_b: run_step_two_b()
+    except KeyboardInterrupt:
+        lgf.step_two_b_error()
+    
+    try:
+        if not pm.step_three: run_step_three()
+    except KeyboardInterrupt:
+        lgf.step_three_error()
+
+    try:
+        if not pm.step_four: run_step_four()
+    except KeyboardInterrupt:
+        lgf.step_four_error()
+
+    try:
+        if not pm.step_five: run_step_five()
+    except KeyboardInterrupt:
+        lgf.step_five_error()
+
     
     #Display total time to complete
     t1 = time()

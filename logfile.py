@@ -1,4 +1,5 @@
 import tempfile
+import sys
 
 def dump(filename = 'goodpy_params.py'):
     outf = open(filename,'w')
@@ -85,3 +86,32 @@ def write_param(param_name,param_vals,
         o.write(line)  
 
     t.close() #Close temporary file, will cause it to be deleted
+
+
+def step_one_a_error():
+    print 'User Abort Detected'
+    sys.exit()
+
+def step_one_b_error():
+    print 'User Abort Detected'
+    sys.exit()
+
+def step_two_a_error():
+    print 'User Abort Detected'
+    sys.exit()
+
+def step_two_b_error():
+    print 'User Abort Detected'
+    sys.exit()
+
+def step_three_error():
+    print 'User Abort Detected'
+    sys.exit()
+
+def step_four_error():
+    print 'User Abort Detected'
+    sys.exit()
+
+def step_five_error():
+    print 'User Abort Detected'
+    sys.exit()
