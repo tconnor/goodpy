@@ -35,223 +35,244 @@ def main():
     variable not stored in pm. will potentially be changed upon a
     rerun. This is bad; if the user wants to change that variable,
     they should do so in the parameter file itself.'''
+
     t0 = time()
 
-    #Step 1: Separate by file type and Trim/Bias Correct
-    if not pm.step_one_a:
-
-        #Get everything set up, see what we're working with
-        irf_stp.initialize_iraf()
-        pm.file_list = f_man.get_file_list(searchstr='*.fits')
-        lgf.write_param('file_list',pm.file_list,p_type='list')
-
-        #Determine a type for each file, with user oversight
-        pm.obj_list = [ftl.observation_type(ff) for ff in pm.file_list]
-        lgf.write_param('obj_list',pm.obj_list,p_type='list')
-        pm.typedict = {}
-        for file,obj in zip(pm.file_list,pm.obj_list):
-            pm.typedict[file.split('.')[0]] = obj
-        pm.typedict = gui.establish_type(pm.file_list,pm.typedict,
-                                         ['focus','img','fear','qtz','obj'])
-        print pm.typedict
-        lgf.write_param('typedict',pm.typedict,p_type='dict')
-
-        #Sort everything into bins
-        f_man.first_movement(pm.file_list,pm.typedict,force_overwrite=False)
-        f_man.bell() #Alert user
-        need_modes = gui.get_boolean('Are there multiple observing modes?')
-        if need_modes:
-            file_modes, nmodes = ftl.guess_mode(pm.file_list)
-            nmodes_user = gui.user_int_input(guess=1,title='Number of Modes')
-            if nmodes_user > nmodes:
-                print 'Could not automatically detect all modes. User input needed.'
-                nmodes = nmodes_user + 0
-            elif nmodes > nmodes_user:
-                print 'Found more modes than expected. Confirm all choices.'
-            else:
-                print 'Same number of modes detected. Please confirm all choices.'
-            print file_modes
-            modes_dict = gui.establish_type(pm.file_list,file_modes,range(nmodes))
-            print modes_dict
-            for mode in range(nmodes):
-                f_man.sort_modes(modes_dict,pm.file_list,
-                                 pm.obj_list,pm.typedict,mode)
-
-            sys.exit('Modes Separated. Resume reduction'+
-                    ' in individual directories')
-        lgf.write_param('step_one_a',True,p_type='boolean')
-
-    if not pm.step_one_b:
-        pm.file_list = f_man.get_file_list(searchstr='*.fits')
-        lgf.write_param('file_list',pm.file_list,p_type='list')
-        if not hasattr(pm,'dimensions_reduced'):
-            for ff in pm.file_list:
-                irf_stp.reduce_dimensions(ff)
-            lgf.write_param('dimensions_reduced',True,p_type='boolean')
-            f_man.bell() #Alert user
-        #There should be a way to check the bias.
-        irf_stp.bias_correct(pm.file_list)
-        f_man.make_and_move(pm.file_list,'ORIG')
-        lgf.write_param('step_one_b',True,p_type='boolean')
-
-
-    #Step 2: Flatfield 
-    if not pm.step_two_a:
-        pm.file_list = f_man.prepend_list(pm.file_list,'b')
-        [pm.quartz_list, pm.calib_list,
-          pm.science_list] = f_man.type_list(pm.file_list,
-                                             pm.typedict,ignore='b')
-        f_man.bell() #Alert user
-
-        art_cor = gui.get_boolean('Are you correcting for the QTZ artifact?')
-        while art_cor:
-            subunit = "Quartz Artifact Frames"
-            artifact_list = gui.select_subgroup(pm.quartz_list,
-                                                subunit=subunit)
-            pm.quartz_list = f_man.separate_artifact_quartz(artifact_list,
-                                                            pm.quartz_list)
-            if len(artifact_list) == 0:
-                print 'No Artifact frames; skipping'
-                break
-            elif len(artifact_list) > 1:
-                artifact='qtz_artifact.fits'
-                irf_stp.artifact_imcombine(artifact_list,artifact)
-            else:
-                artifact = artifact_list[0]
-            nartifact = 'nartifact.fits'
-            irf_stp.normalize_artifact(artifact,nartifact)
-            
-            wnartifact = 'wnartifact.fits'
-
-            one_theta, thetas = ftl.get_theta(wnartifact,pm.quartzlist)
-            if one_theta:
-                theta = thetas[0]
-                irf_stp.artifact_create(nartifact,theta,wnartifact)
-                irf_stp.correct_artifact(wnartifact,pm.quartz_list)     #####ACTION ITEM########
-            else:
-                for ii in range(pm.quartzlist):
-                    theta = thetas[ii]
-                    irf_stp.artifact_create(nartifact,theta,wnartifact)
-                    irf_stp.correct_artifact(wnartifact,pm.quartz_list[ii])
-            f_man.make_and_move(artifact_list+
-                                [artifact,nartifact,wnartifact],'ARTIFACT')
-            pm.quartz_list = f_man.prepend_list(pm.quartz_list,'a')
-            break
-
-        lgf.write_param('file_list',pm.file_list,p_type='list')
-        lgf.write_param('quartz_list',pm.quartz_list,p_type='list')
-        lgf.write_param('calib_list',pm.calib_list,p_type='list')
-        lgf.write_param('science_list',pm.science_list,p_type='list')
-        lgf.write_param('step_two_a',True,p_type='boolean')
-
-    if not pm.step_two_b:
-        irf_stp.normalize_quartzes(pm.quartz_list)
-        if art_cor:
-            f_man.make_and_move(pm.quartz_list,'ARCQTZ')
-        else:
-            f_man.make_and_move(pm.quartz_list,'BIAS')            
-        pm.quartz_list = f_man.prepend_list(pm.quartz_list,'n')
-        object_match = gui.find_match(pm.science_list,pm.quartz_list,
-                                      title="Quartz Match",
-                                      caption_tail=' QTZ Selection')
-        irf_stp.quartz_divide(pm.science_list,object_match)
-        f_man.move_file_list(pm.science_list,'BIAS')
-        pm.science_list = f_man.prepend_list(pm.science_list,'f')
-        f_man.make_and_move(pm.quartz_list,'QTZ')
-
-        lgf.write_param('science_list',pm.science_list,p_type='list')
-        lgf.write_param('step_two_b',True,p_type='boolean')
-
-    #Step 3: Transform to uniform wavelength grid
-    if not pm.step_three:
-        #Check if linelist exists
-        #if not, write linelist
-        if not f_man.check_for_file('linelist'):
-            f_man.write_linelist('linelist')
-        object_match = gui.find_single_match(pm.science_list,
-                                             pm.calib_list,
-                                             title='Arc Match',
-                                             caption_tail=' Arc Selection')
-        guesses = ftl.guess_dxvals(pm.science_list[0])
-        arc_list = f_man.find_uniques_from_dict(object_match,pm.science_list)
-        arc_fc_dict =  f_man.make_fcname(arc_list)
-        pm.std_list = gui.select_subgroup(pm.science_list,
-                                       subunit="Standard Stars")
-        non_std = [fits for fits in pm.science_list if fits not in pm.std_list]
-        subunit = "Supplementary Dispersion Frames"
-        supplement_list = gui.select_subgroup(non_std,subunit=subunit)
-        irf_stp.standard_trace(pm.std_list,supplement_list)
-        irf_stp.make_lambda_solution(arc_list,arc_fc_dict)
-        guesses = ftl.guess_dxvals(pm.science_list[0])
-        dx_vals = gui.user_float_inputs(['x1','x2','dx'],guesses)
-        arc_coords = dato.get_dx_params(arc_list,use_fixed=True,
-                                        x1=dx_vals[0],x2=dx_vals[1],
-                                        dx=dx_vals[2])
-        irf_stp.transform(pm.science_list,object_match,arc_fc_dict,arc_coords)
-        f_man.bell() #Alert user
-        lgf.write_param('step_three',True,p_type='boolean')
-        lgf.write_param('std_list',pm.std_list,p_type='list')
-
-
-    #Step 4: Make Standard star maps
-    if not pm.step_four:
-        f_man.make_and_move(pm.calib_list,'CALIB')
-        f_man.make_and_move(pm.science_list,'NORM')
-        pm.science_list = f_man.prepend_list(non_std,'t')
-        pm.std_list = f_man.prepend_list(pm.std_list,'t')
-        caption = 'Select individual standard stars'
-        super_std = gui.break_apart(pm.std_list,title='Standard Selection',
-                                    caption=caption)
-        std_options = dato.std_options()
-        pm.calib_stars = []
-        for stdl in super_std:
-            stdidx = super_std.index(stdl)
-            irf_stp.apall_std(stdl)
-            std_name = gui.find_single_match([stdl[0]],std_options,
-                                             caption_tail=' Star Name',
-                                             title='Star Name')[stdl[0]]
-            irf_stp.standard(stdl,std_name,stdidx)
-            pm.calib_stars.append(std_name)
-            irf_stp.sensfunc(stdidx)
-        f_man.make_and_move(pm.std_list,'TRANS')
-        f_man.prepend_list(pm.std_list,'s')
-        f_man.make_and_move(pm.std_list,'STD')
-        
-        lgf.write_param('science_list',pm.science_list,p_type='list')
-        lgf.write_param('std_list',pm.std_list,p_type='list')
-        lgf.write_param('calib_stars',pm.calib_stars,p_type='list')
-        lgf.write_param('step_four',True,p_type='boolean')
-
-
-    #Step 5: Flux calibrate, BKG subtract
-    if not pm.step_five:
-        super_science = gui.break_apart(pm.science_list,title='Object Selection',
-                                        caption='Select individual objects')
-        first_science = [obj[0] for obj in super_science]
-        caption_tail = 'Standard Selection'
-        standard_match = gui.find_single_match(first_science,pm.calib_stars,
-                                               title='Standard Match',
-                                               caption_tail=caption_tail)
-        for obj in super_science:
-            stdidx = pm.calib_stars.index(standard_match[obj[0]])
-            irf_stp.flux_calibrate(obj,stdidx)
-            irf_stp.background(obj)
-            outname = obj[0].split('.')[1]
-            irf_stp.imcombine(obj,outname)
-        f_man.make_and_move(pm.science_list,'TRANS')
-        f_man.prepend_list(pm.science_list,'l')
-        f_man.make_and_move(pm.science_list,'FLUX')
-        f_man.prepend_list(pm.science_list,'s')
-        f_man.make_and_move(pm.science_list,'BKG')
-
-        lgf.write_param('step_five',True,p_type='boolean')
-
-
+    if not pm.step_one_a: run_step_one_a()
+    if not pm.step_one_b: run_step_one_b()
+    if not pm.step_two_a: run_step_two_a()
+    if not pm.step_two_b: run_step_two_b()
+    if not pm.step_three: run_step_three()
+    if not pm.step_four: run_step_four()
+    if not pm.step_five: run_step_five()
+    
     #Display total time to complete
     t1 = time()
     tmin = int( np.floor( (t1 - t0) / 60.) )
     tsec = (t1 - t0) % 60
     print 'Time: {0:2d}:{1:05.2f}'.format(tmin,tsec)
+
+
+
+
+        
+def run_step_one_a():
+    '''Separates by file type and, if needed, sorts by mode.'''
+    
+    #Get everything set up, see what we're working with
+    irf_stp.initialize_iraf()
+    pm.file_list = f_man.get_file_list(searchstr='*.fits')
+    lgf.write_param('file_list',pm.file_list,p_type='list')
+
+    #Determine a type for each file, with user oversight
+    pm.obj_list = [ftl.observation_type(ff) for ff in pm.file_list]
+    lgf.write_param('obj_list',pm.obj_list,p_type='list')
+    pm.typedict = {}
+    for file,obj in zip(pm.file_list,pm.obj_list):
+        pm.typedict[file.split('.')[0]] = obj
+    pm.typedict = gui.establish_type(pm.file_list,pm.typedict,
+                                     ['focus','img','fear','qtz','obj'])
+    print pm.typedict
+    lgf.write_param('typedict',pm.typedict,p_type='dict')
+
+    #Sort everything into bins
+    f_man.first_movement(pm.file_list,pm.typedict,force_overwrite=False)
+    f_man.bell() #Alert user
+    need_modes = gui.get_boolean('Are there multiple observing modes?')
+    if need_modes:
+        file_modes, nmodes = ftl.guess_mode(pm.file_list)
+        nmodes_user = gui.user_int_input(guess=1,title='Number of Modes')
+        if nmodes_user > nmodes:
+            print 'Could not automatically detect all modes. User input needed.'
+            nmodes = nmodes_user + 0
+        elif nmodes > nmodes_user:
+            print 'Found more modes than expected. Confirm all choices.'
+        else:
+            print 'Same number of modes detected. Please confirm all choices.'
+        print file_modes
+        modes_dict = gui.establish_type(pm.file_list,file_modes,range(nmodes))
+        print modes_dict
+        for mode in range(nmodes):
+            f_man.sort_modes(modes_dict,pm.file_list,
+                             pm.obj_list,pm.typedict,mode)
+
+        sys.exit('Modes Separated. Resume reduction'+
+                ' in individual directories')
+    lgf.write_param('step_one_a',True,p_type='boolean')
+    return
+
+def run_step_one_b():
+    '''Runs basic reductions including bias correct on all images'''
+    pm.file_list = f_man.get_file_list(searchstr='*.fits')
+    lgf.write_param('file_list',pm.file_list,p_type='list')
+    if not hasattr(pm,'dimensions_reduced'):
+        for ff in pm.file_list:
+            irf_stp.reduce_dimensions(ff)
+        lgf.write_param('dimensions_reduced',True,p_type='boolean')
+        f_man.bell() #Alert user
+    #There should be a way to check the bias.
+    irf_stp.bias_correct(pm.file_list)
+    f_man.make_and_move(pm.file_list,'ORIG')
+    lgf.write_param('step_one_b',True,p_type='boolean')
+    return
+
+def run_step_two_a():
+    '''Gives user the chance to correct the QUARTZ artifact'''
+    pm.file_list = f_man.prepend_list(pm.file_list,'b')
+    [pm.quartz_list, pm.calib_list,
+      pm.science_list] = f_man.type_list(pm.file_list,
+                                         pm.typedict,ignore='b')
+    f_man.bell() #Alert user
+
+    art_cor = gui.get_boolean('Are you correcting for the QTZ artifact?')
+    while art_cor:
+        subunit = "Quartz Artifact Frames"
+        artifact_list = gui.select_subgroup(pm.quartz_list,
+                                            subunit=subunit)
+        pm.quartz_list = f_man.separate_artifact_quartz(artifact_list,
+                                                        pm.quartz_list)
+        if len(artifact_list) == 0:
+            print 'No Artifact frames; skipping'
+            break
+        elif len(artifact_list) > 1:
+            artifact='qtz_artifact.fits'
+            irf_stp.artifact_imcombine(artifact_list,artifact)
+        else:
+            artifact = artifact_list[0]
+        nartifact = 'nartifact.fits'
+        irf_stp.normalize_artifact(artifact,nartifact)
+        
+        wnartifact = 'wnartifact.fits'
+
+        one_theta, thetas = ftl.get_theta(wnartifact,pm.quartzlist)
+        if one_theta:
+            theta = thetas[0]
+            irf_stp.artifact_create(nartifact,theta,wnartifact)
+            irf_stp.correct_artifact(wnartifact,pm.quartz_list)     #####ACTION ITEM########
+        else:
+            for ii in range(pm.quartzlist):
+                theta = thetas[ii]
+                irf_stp.artifact_create(nartifact,theta,wnartifact)
+                irf_stp.correct_artifact(wnartifact,pm.quartz_list[ii])
+        f_man.make_and_move(artifact_list+
+                            [artifact,nartifact,wnartifact],'ARTIFACT')
+        pm.quartz_list = f_man.prepend_list(pm.quartz_list,'a')
+        break
+
+    lgf.write_param('file_list',pm.file_list,p_type='list')
+    lgf.write_param('quartz_list',pm.quartz_list,p_type='list')
+    lgf.write_param('calib_list',pm.calib_list,p_type='list')
+    lgf.write_param('science_list',pm.science_list,p_type='list')
+    lgf.write_param('step_two_a',True,p_type='boolean')
+    return
+
+
+def run_step_two_b():    
+    '''Normalize the quartes'''
+    irf_stp.normalize_quartzes(pm.quartz_list)
+    if art_cor:
+        f_man.make_and_move(pm.quartz_list,'ARCQTZ')
+    else:
+        f_man.make_and_move(pm.quartz_list,'BIAS')            
+    pm.quartz_list = f_man.prepend_list(pm.quartz_list,'n')
+    object_match = gui.find_match(pm.science_list,pm.quartz_list,
+                                  title="Quartz Match",
+                                  caption_tail=' QTZ Selection')
+    irf_stp.quartz_divide(pm.science_list,object_match)
+    f_man.move_file_list(pm.science_list,'BIAS')
+    pm.science_list = f_man.prepend_list(pm.science_list,'f')
+    f_man.make_and_move(pm.quartz_list,'QTZ')
+
+    lgf.write_param('science_list',pm.science_list,p_type='list')
+    lgf.write_param('step_two_b',True,p_type='boolean')
+
+    return
+
+def run_step_three():
+    '''Transform to uniform wavelength grid'''
+    if not f_man.check_for_file('linelist'):
+        f_man.write_linelist('linelist')
+    object_match = gui.find_single_match(pm.science_list,
+                                         pm.calib_list,
+                                         title='Arc Match',
+                                         caption_tail=' Arc Selection')
+    guesses = ftl.guess_dxvals(pm.science_list[0])
+    arc_list = f_man.find_uniques_from_dict(object_match,pm.science_list)
+    arc_fc_dict =  f_man.make_fcname(arc_list)
+    pm.std_list = gui.select_subgroup(pm.science_list,
+                                   subunit="Standard Stars")
+    non_std = [fits for fits in pm.science_list if fits not in pm.std_list]
+    subunit = "Supplementary Dispersion Frames"
+    supplement_list = gui.select_subgroup(non_std,subunit=subunit)
+    irf_stp.standard_trace(pm.std_list,supplement_list)
+    irf_stp.make_lambda_solution(arc_list,arc_fc_dict)
+    guesses = ftl.guess_dxvals(pm.science_list[0])
+    dx_vals = gui.user_float_inputs(['x1','x2','dx'],guesses)
+    arc_coords = dato.get_dx_params(arc_list,use_fixed=True,
+                                    x1=dx_vals[0],x2=dx_vals[1],
+                                    dx=dx_vals[2])
+    irf_stp.transform(pm.science_list,object_match,arc_fc_dict,arc_coords)
+    f_man.bell() #Alert user
+    lgf.write_param('step_three',True,p_type='boolean')
+    lgf.write_param('std_list',pm.std_list,p_type='list')
+    return
+
+def run_step_four():
+    '''Make Standard star maps'''
+    f_man.make_and_move(pm.calib_list,'CALIB')
+    f_man.make_and_move(pm.science_list,'NORM')
+    pm.science_list = f_man.prepend_list(non_std,'t')
+    pm.std_list = f_man.prepend_list(pm.std_list,'t')
+    caption = 'Select individual standard stars'
+    super_std = gui.break_apart(pm.std_list,title='Standard Selection',
+                                caption=caption)
+    std_options = dato.std_options()
+    pm.calib_stars = []
+    for stdl in super_std:
+        stdidx = super_std.index(stdl)
+        irf_stp.apall_std(stdl)
+        std_name = gui.find_single_match([stdl[0]],std_options,
+                                         caption_tail=' Star Name',
+                                         title='Star Name')[stdl[0]]
+        irf_stp.standard(stdl,std_name,stdidx)
+        pm.calib_stars.append(std_name)
+        irf_stp.sensfunc(stdidx)
+    f_man.make_and_move(pm.std_list,'TRANS')
+    f_man.prepend_list(pm.std_list,'s')
+    f_man.make_and_move(pm.std_list,'STD')
+    
+    lgf.write_param('science_list',pm.science_list,p_type='list')
+    lgf.write_param('std_list',pm.std_list,p_type='list')
+    lgf.write_param('calib_stars',pm.calib_stars,p_type='list')
+    lgf.write_param('step_four',True,p_type='boolean')
+    return
+
+def run_step_five():
+    '''Flux calibrate and BKG subtract science images'''
+    super_science = gui.break_apart(pm.science_list,title='Object Selection',
+                                    caption='Select individual objects')
+    first_science = [obj[0] for obj in super_science]
+    caption_tail = 'Standard Selection'
+    standard_match = gui.find_single_match(first_science,pm.calib_stars,
+                                           title='Standard Match',
+                                           caption_tail=caption_tail)
+    for obj in super_science:
+        stdidx = pm.calib_stars.index(standard_match[obj[0]])
+        irf_stp.flux_calibrate(obj,stdidx)
+        irf_stp.background(obj)
+        outname = obj[0].split('.')[1]
+        irf_stp.imcombine(obj,outname)
+    f_man.make_and_move(pm.science_list,'TRANS')
+    f_man.prepend_list(pm.science_list,'l')
+    f_man.make_and_move(pm.science_list,'FLUX')
+    f_man.prepend_list(pm.science_list,'s')
+    f_man.make_and_move(pm.science_list,'BKG')
+
+    lgf.write_param('step_five',True,p_type='boolean')
+    return
+
+
+
 
 
 
