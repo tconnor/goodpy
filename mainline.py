@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import os
 if 'PYRAF_BETA_STATUS' in os.environ:
     if os.environ.get('PYRAF_BETA_STATUS') == '1':
