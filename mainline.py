@@ -41,35 +41,35 @@ def main():
     try:
         if not pm.step_one_a: run_step_one_a()
     except KeyboardInterrupt:
-        lgf.step_one_a_error()
+        lgf.step_one_a_error(pm)
     try:
         if not pm.step_one_b: run_step_one_b()
     except KeyboardInterrupt:
-        lgf.step_one_b_error()
+        lgf.step_one_b_error(pm)
         
     try:
         if not pm.step_two_a: run_step_two_a()
     except KeyboardInterrupt:
-        lgf.step_two_a_error()
+        lgf.step_two_a_error(pm)
     try:
         if not pm.step_two_b: run_step_two_b()
     except KeyboardInterrupt:
-        lgf.step_two_b_error()
+        lgf.step_two_b_error(pm)
     
     try:
         if not pm.step_three: run_step_three()
     except KeyboardInterrupt:
-        lgf.step_three_error()
+        lgf.step_three_error(pm)
 
     try:
         if not pm.step_four: run_step_four()
     except KeyboardInterrupt:
-        lgf.step_four_error()
+        lgf.step_four_error(pm)
 
     try:
         if not pm.step_five: run_step_five()
     except KeyboardInterrupt:
-        lgf.step_five_error()
+        lgf.step_five_error(pm)
 
     
     #Display total time to complete
@@ -125,6 +125,7 @@ def run_step_one_a():
         sys.exit('Modes Separated. Resume reduction'+
                 ' in individual directories')
     lgf.write_param('step_one_a',True,p_type='boolean')
+    print 'Step 1a Completed'
     return
 
 def run_step_one_b():
@@ -140,6 +141,7 @@ def run_step_one_b():
     irf_stp.bias_correct(pm.file_list)
     f_man.make_and_move(pm.file_list,'ORIG')
     lgf.write_param('step_one_b',True,p_type='boolean')
+    print 'Step 1b Completed'
     return
 
 def run_step_two_a():
@@ -190,12 +192,20 @@ def run_step_two_a():
     lgf.write_param('calib_list',pm.calib_list,p_type='list')
     lgf.write_param('science_list',pm.science_list,p_type='list')
     lgf.write_param('step_two_a',True,p_type='boolean')
+    print 'Step 2a Completed'
     return
 
 
 def run_step_two_b():    
     '''Normalize the quartes'''
-    irf_stp.normalize_quartzes(pm.quartz_list)
+    if not pm.already_normalized:
+        dont_norm = []
+    else:
+        dont_norm = pm.already_normalized
+        
+    irf_stp.normalize_quartzes(pm.quartz_list,dont_norm)
+    lgf.write_param('already_normalized',pm.quartz_list,p_type='list')
+    
     if art_cor:
         f_man.make_and_move(pm.quartz_list,'ARCQTZ')
     else:
@@ -212,6 +222,7 @@ def run_step_two_b():
     lgf.write_param('science_list',pm.science_list,p_type='list')
     lgf.write_param('step_two_b',True,p_type='boolean')
 
+    print 'Step 2b Completed'
     return
 
 def run_step_three():
@@ -223,24 +234,35 @@ def run_step_three():
                                          title='Arc Match',
                                          caption_tail=' Arc Selection')
     guesses = ftl.guess_dxvals(pm.science_list[0])
-    arc_list = f_man.find_uniques_from_dict(object_match,pm.science_list)
-    arc_fc_dict =  f_man.make_fcname(arc_list)
+    pm.arc_list = f_man.find_uniques_from_dict(object_match,pm.science_list)
+    arc_fc_dict =  f_man.make_fcname(pm.arc_list)
     pm.std_list = gui.select_subgroup(pm.science_list,
                                    subunit="Standard Stars")
     non_std = [fits for fits in pm.science_list if fits not in pm.std_list]
     subunit = "Supplementary Dispersion Frames"
     supplement_list = gui.select_subgroup(non_std,subunit=subunit)
-    irf_stp.standard_trace(pm.std_list,supplement_list)
-    irf_stp.make_lambda_solution(arc_list,arc_fc_dict)
+    if not pm.standard_traced:
+        irf_stp.standard_trace(pm.std_list,supplement_list)
+        lgf.write_param('standard_traced',True,p_type='boolean')
+
+    if not pm.already_identified:
+        dont_ident = []
+    else:
+        dont_ident = pm.already_identified
+
+    irf_stp.make_lambda_solution(pm.arc_list,arc_fc_dict,dont_ident)
+    lgf.write_param('already_identified',pm.arc_list,p_type='list')
+    
     guesses = ftl.guess_dxvals(pm.science_list[0])
     dx_vals = gui.user_float_inputs(['x1','x2','dx'],guesses)
-    arc_coords = dato.get_dx_params(arc_list,use_fixed=True,
+    arc_coords = dato.get_dx_params(pm.arc_list,use_fixed=True,
                                     x1=dx_vals[0],x2=dx_vals[1],
                                     dx=dx_vals[2])
     irf_stp.transform(pm.science_list,object_match,arc_fc_dict,arc_coords)
     f_man.bell() #Alert user
     lgf.write_param('step_three',True,p_type='boolean')
     lgf.write_param('std_list',pm.std_list,p_type='list')
+    print 'Step 3 Completed'
     return
 
 def run_step_four():
@@ -250,12 +272,12 @@ def run_step_four():
     pm.science_list = f_man.prepend_list(non_std,'t')
     pm.std_list = f_man.prepend_list(pm.std_list,'t')
     caption = 'Select individual standard stars'
-    super_std = gui.break_apart(pm.std_list,title='Standard Selection',
+    pm.super_std = gui.break_apart(pm.std_list,title='Standard Selection',
                                 caption=caption)
     std_options = dato.std_options()
     pm.calib_stars = []
-    for stdl in super_std:
-        stdidx = super_std.index(stdl)
+    for stdl in pm.super_std:
+        stdidx = pm.super_std.index(stdl)
         irf_stp.apall_std(stdl)
         std_name = gui.find_single_match([stdl[0]],std_options,
                                          caption_tail=' Star Name',
@@ -271,6 +293,7 @@ def run_step_four():
     lgf.write_param('std_list',pm.std_list,p_type='list')
     lgf.write_param('calib_stars',pm.calib_stars,p_type='list')
     lgf.write_param('step_four',True,p_type='boolean')
+    print 'Step 4 Completed'
     return
 
 def run_step_five():
@@ -282,7 +305,12 @@ def run_step_five():
     standard_match = gui.find_single_match(first_science,pm.calib_stars,
                                            title='Standard Match',
                                            caption_tail=caption_tail)
+    if not pm.already_calibrated:
+        pm.already_calibrated = []
+
     for obj in super_science:
+        if obj in pm.already_calibrated:
+            continue
         stdidx = pm.calib_stars.index(standard_match[obj[0]])
         irf_stp.flux_calibrate(obj,stdidx)
         irf_stp.background(obj)
@@ -295,6 +323,7 @@ def run_step_five():
     f_man.make_and_move(pm.science_list,'BKG')
 
     lgf.write_param('step_five',True,p_type='boolean')
+    print 'Step 5 Completed'
     return
 
 

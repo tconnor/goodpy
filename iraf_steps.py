@@ -72,12 +72,14 @@ def correct_artifact(wnartifact,quartz_list):
         iraf.imarith(operand1=qtz,operand2=wnartifact,op='/',result='a'+qtz)
     return
 
-def normalize_quartzes(quartz_list):
+def normalize_quartzes(quartz_list,dont_norm_list):
     '''Normalizes the files in quartz_list using noao>twodspec>longslit>response'''
-    #This needs more intelligent Failure Handling; current version is alpha.
     irf_prm.set_response(iraf.response)
     for quartz in quartz_list:
+        if quartz in dont_norm_list:
+            continue
         iraf.response(calibrat=quartz,normaliz=quartz,response='n'+quartz)
+        dont_norm_list.append(quartz)
     return
 
 def quartz_divide(science_list,object_match):
@@ -127,14 +129,17 @@ def standard_trace(standard_list,supplement_list,outname='star'):
     iraf.fitcoords(images=all_standards,fitname=outname)
     return
 
-def make_lambda_solution(arc_list,fcnamedict):
+def make_lambda_solution(arc_list,fcnamedict,dont_ident_list):
     irf_prm.set_identify_calibration(iraf.identify)
     irf_prm.set_reidentify_calibration(iraf.reidentify)
     irf_prm.set_fitcoords_calibration(iraf.fitcoords)
     for arc in arc_list:
+        if arc in dont_ident_list:
+            continue
         iraf.identify(images=arc)
         iraf.reidentify(reference=arc,images=arc)
         iraf.fitcoords(images=arc[:-5],fitname=fcnamedict[arc])
+        dont_ident_list.append(arc)
     return
 
 def transform(science_list,object_match,arc_fc_dict,arc_coords,fcstar='star'):

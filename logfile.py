@@ -1,5 +1,6 @@
 import tempfile
 import sys
+import file_manipulations as f_man
 
 def dump(filename = 'goodpy_params.py'):
     outf = open(filename,'w')
@@ -88,30 +89,66 @@ def write_param(param_name,param_vals,
     t.close() #Close temporary file, will cause it to be deleted
 
 
-def step_one_a_error():
-    print 'User Abort Detected'
-    sys.exit()
+def step_one_a_error(pm):
+    print 'User Abort Detected in Step 1a'
+    sys.exit('Due to the short nature of step one,'+
+             ' nothing is being written to the log file.')
 
-def step_one_b_error():
-    print 'User Abort Detected'
-    sys.exit()
+def step_one_b_error(pm):
+    print 'User Abort Detected in Step 1b'
+    for ff in pm.filelist:
+        f_man.check_and_clear('b'+ff)
+    f_man.find_and_clear('tmp*fits')
+    sys.exit('Bias corrected images and any temp images removed')
 
-def step_two_a_error():
-    print 'User Abort Detected'
-    sys.exit()
+def step_two_a_error(pm):
+    print 'User Abort Detected in Step 2a'
+    sys.exit('Due to the short nature of step 2a,'+
+             ' nothing is being written to the log file.')
 
-def step_two_b_error():
-    print 'User Abort Detected'
-    sys.exit()
+def step_two_b_error(pm):
+    print 'User Abort Detected in Step 2b'
+    localvars = sys.exc_info()[2].tb_next.tb_frame.f_locals
+    if 'dont_norm_list' in localvars:
+        dont_norm = localvars['dont_norm_list']
+        write_param('already_normalized',dont_norm,p_type='list')
+        print 'Quartz files already normalized written to param file as ',
+        print 'already_normalized'
+        print 'These will be skipped on next pass'
+    for ff in pm.science_list:
+        f_man.check_and_clear('f'+ff)
+    f_man.check_and_clear('tempquartz.fits')
+    sys.exit('Clearing any flat-fielded images already made.')
 
-def step_three_error():
-    print 'User Abort Detected'
-    sys.exit()
+def step_three_error(pm):
+    print 'User Abort Detected in Step 3'
+    localvars = sys.exc_info()[2].tb_next.tb_frame.f_locals
+    if 'dont_ident_list' in localvars:
+        dont_ident = localvars['dont_ident_list']
+        write_param('already_identified',dont_ident,p_type='list')
+        print 'Arc files already identified written to param file as ',
+        print 'already_identified'
+        print 'These will be skipped on next pass'
+    for ff in pm.science_list:
+        f_man.check_and_clear('t'+ff)
 
-def step_four_error():
-    print 'User Abort Detected'
-    sys.exit()
+    sys.exit('Clearing any already transformed images already made')
 
-def step_five_error():
-    print 'User Abort Detected'
-    sys.exit()
+def step_four_error(pm):
+    print 'User Abort Detected in Step 4'
+    for ff in pm.std_list:
+        f_man.check_and_clear('s'+ff)
+    for stdl in pm.super_std:
+        stdidx = pm.super_std.index(stdl)
+        f_man.check_and_clear('std'+str(stdidx))
+        f_man.check_and_clear('sens'+str(stdidx))
+    sys.exit('Clearing any standard star or sensfunc images alrady made')
+
+def step_five_error(pm):
+    print 'User Abort Detected in Step 5'
+    write_param('already_calibrated',pm.already_calibrated,p_type='list')
+    print 'Science files already calibrated written to param file as ',
+    print 'already_calibrated'
+    print 'These will be skipped on next pass'
+
+    sys.exit('No files deleted on cleanup')
