@@ -46,7 +46,24 @@ def make_directory(direc,silent=False,force_overwrite=True,notify=False,outmessa
         if append_dir: outmessage = outmessage +' '+ direc 
         print outmessage
     return
-        
+
+
+def red_ccd_fix(filelist):
+    '''Changes file names from XXXX_filename to XXXX.filename
+    This was a change made when switching to the Red CCD and
+    it's easier to just have them all in the same format.'''
+    tick = 0
+    for ff in filelist:
+        if ff[:4].isdigit() and ff[4]=='_':
+            if tick == 0:
+                print 'Red CCD file format detected'
+                print 'Files are being renamed for ',
+                print 'goodpy compatability'
+                tick = 1
+            fnew = ff[:4]+'.'+ff[5:]
+            shutil.move(ff,fnew)
+    return
+
 def get_file_list(searchstr='*.fits'):
     '''Gets a file list from the current directory
     Arguments:

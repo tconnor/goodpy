@@ -89,6 +89,8 @@ def run_step_one_a():
     
     #Get everything set up, see what we're working with
     pm.file_list = f_man.get_file_list(searchstr='*.fits')
+    f_man.red_ccd_fix(pm.file_list)
+    pm.file_list = f_man.get_file_list(searchstr='*.fits')
     lgf.write_param('file_list',pm.file_list,p_type='list')
 
     #Determine a type for each file, with user oversight
