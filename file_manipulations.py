@@ -96,6 +96,10 @@ def type_list(file_list,typedict,ignore=''):
     quartz_list, calib_list, science_list = [],[],[]
     for ff in file_list:
         exposure = ff.split('.')[0]
+        #This next check sees if the file starts with the ignore string
+        #If so, it skips out the ignore string and continues
+        if len(ignore) > 0 and exposure.startswith(ignore):
+            exposure = exposure[len(ignore):]
         exposure = exposure.replace(ignore,'')
         exp_type = typedict[exposure]
         if exp_type == 'fear':
