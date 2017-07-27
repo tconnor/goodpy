@@ -167,6 +167,15 @@ def sort_modes(modes_dict,file_list,obj_list,typedict,mode):
         lgf.dump_mode(direc,out_file_list,out_obj_list,out_type_dict)
     return
 
+def separate_artifact_quartz(artifact_list,quartz_list):
+    outlist = []
+    for qtz in quartz_list:
+        if qtz not in artifact_list:
+            outlist.append(qtz)
+        else:
+            pass
+    return outlist
+    
 def check_for_file(filename):
   
     if os.path.isdir(filename):
@@ -178,6 +187,25 @@ def check_for_file(filename):
 
     else:
         return False
+
+def check_and_clear(filename):
+    '''Checks to see if a file exists; if so, it removes it'''
+    if os.path.isdir(filename):
+        #This isn't good; it's a directory!
+        return #No better way to handle this...
+
+    if os.path.isfile(filename):
+        os.remove(filename)
+        return
+    
+    else:
+        return
+
+def find_and_clear(search_string):
+    file_list = glob.glob(search_string)
+    for ff in file_list:
+        os.remove(ff)
+    return
 
 def write_linelist(outfile,lamp='fear'):
     outfile = open(outfile,'w')

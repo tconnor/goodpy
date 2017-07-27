@@ -67,9 +67,8 @@ def artifact_create(artifact,theta,output):
     iraf.imdelete(images='tmpartifact.fits',go_ahead='yes',verify='no')
     return
 
-def correct_artifact(wnartifact,quartz_list):
-    for qtz in quartz_list:
-        iraf.imarith(operand1=qtz,operand2=wnartifact,op='/',result='a'+qtz)
+def correct_artifact(wnartifact,qtz):
+    iraf.imarith(operand1=qtz,operand2=wnartifact,op='/',result='a'+qtz)
     return
 
 def normalize_quartzes(quartz_list,dont_norm_list):

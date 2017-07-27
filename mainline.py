@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import sys
 import os
 if 'PYRAF_BETA_STATUS' in os.environ:
@@ -37,6 +38,7 @@ def main():
     they should do so in the parameter file itself.'''
 
     t0 = time()
+    irf_stp.initialize_iraf()
 
     try:
         if not pm.step_one_a: run_step_one_a()
@@ -86,7 +88,6 @@ def run_step_one_a():
     '''Separates by file type and, if needed, sorts by mode.'''
     
     #Get everything set up, see what we're working with
-    irf_stp.initialize_iraf()
     pm.file_list = f_man.get_file_list(searchstr='*.fits')
     lgf.write_param('file_list',pm.file_list,p_type='list')
 
@@ -152,8 +153,8 @@ def run_step_two_a():
                                          pm.typedict,ignore='b')
     f_man.bell() #Alert user
 
-    art_cor = gui.get_boolean('Are you correcting for the QTZ artifact?')
-    while art_cor:
+    pm.art_cor = gui.get_boolean('Are you correcting for the QTZ artifact?')
+    while pm.art_cor:
         subunit = "Quartz Artifact Frames"
         artifact_list = gui.select_subgroup(pm.quartz_list,
                                             subunit=subunit)
@@ -163,7 +164,12 @@ def run_step_two_a():
             print 'No Artifact frames; skipping'
             break
         elif len(artifact_list) > 1:
+            #if artifact already exists, remove it.
             artifact='qtz_artifact.fits'
+            if f_man.check_for_file(artifact):
+                print artifact+' already exists.'
+                print "We're deleting it to prevent iraf conflict."
+                f_man.check_and_clear(artifact)
             irf_stp.artifact_imcombine(artifact_list,artifact)
         else:
             artifact = artifact_list[0]
@@ -172,18 +178,22 @@ def run_step_two_a():
         
         wnartifact = 'wnartifact.fits'
 
-        one_theta, thetas = ftl.get_theta(wnartifact,pm.quartzlist)
+        one_theta, thetas = ftl.get_theta(nartifact,pm.quartz_list)
+        print one_theta,thetas,pm.quartz_list
         if one_theta:
             theta = thetas[0]
             irf_stp.artifact_create(nartifact,theta,wnartifact)
-            irf_stp.correct_artifact(wnartifact,pm.quartz_list)     #####ACTION ITEM########
+            for qtz_file in pm.quartz_list:
+                irf_stp.correct_artifact(wnartifact,qtz_file)
         else:
-            for ii in range(pm.quartzlist):
+            for ii in range(len(pm.quartz_list)):
+                f_man.check_and_clear(wnartifact)
                 theta = thetas[ii]
                 irf_stp.artifact_create(nartifact,theta,wnartifact)
                 irf_stp.correct_artifact(wnartifact,pm.quartz_list[ii])
         f_man.make_and_move(artifact_list+
                             [artifact,nartifact,wnartifact],'ARTIFACT')
+        f_man.make_and_move(pm.quartz_list,'BIAS')
         pm.quartz_list = f_man.prepend_list(pm.quartz_list,'a')
         break
 
@@ -191,6 +201,7 @@ def run_step_two_a():
     lgf.write_param('quartz_list',pm.quartz_list,p_type='list')
     lgf.write_param('calib_list',pm.calib_list,p_type='list')
     lgf.write_param('science_list',pm.science_list,p_type='list')
+    lgf.write_param('art_cor',pm.art_cor,p_type='boolean')
     lgf.write_param('step_two_a',True,p_type='boolean')
     print 'Step 2a Completed'
     return
@@ -198,7 +209,7 @@ def run_step_two_a():
 
 def run_step_two_b():    
     '''Normalize the quartes'''
-    if not pm.already_normalized:
+    if not hasattr(pm,'already_normalized'):
         dont_norm = []
     else:
         dont_norm = pm.already_normalized
@@ -206,7 +217,7 @@ def run_step_two_b():
     irf_stp.normalize_quartzes(pm.quartz_list,dont_norm)
     lgf.write_param('already_normalized',pm.quartz_list,p_type='list')
     
-    if art_cor:
+    if pm.art_cor:
         f_man.make_and_move(pm.quartz_list,'ARCQTZ')
     else:
         f_man.make_and_move(pm.quartz_list,'BIAS')            
@@ -245,7 +256,7 @@ def run_step_three():
         irf_stp.standard_trace(pm.std_list,supplement_list)
         lgf.write_param('standard_traced',True,p_type='boolean')
 
-    if not pm.already_identified:
+    if not hasattr(pm,'already_identified'):
         dont_ident = []
     else:
         dont_ident = pm.already_identified
@@ -305,7 +316,7 @@ def run_step_five():
     standard_match = gui.find_single_match(first_science,pm.calib_stars,
                                            title='Standard Match',
                                            caption_tail=caption_tail)
-    if not pm.already_calibrated:
+    if not hasattr(pm,'already_calibrated'):
         pm.already_calibrated = []
 
     for obj in super_science:

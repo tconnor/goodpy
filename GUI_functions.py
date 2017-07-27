@@ -218,6 +218,7 @@ def select_subgroup(mainlist,subunit="Subunits",noscroll_max=20):
 def break_apart(superlist,title='Break Apart',caption='Select from group',noscroll_max=20):
     outlist = []
     more_left = True
+    print 'A GUI has been opened'
     while more_left:
         choicelist = []
         win = Tkinter.Toplevel()
@@ -289,6 +290,7 @@ def test_routine():
 
 def user_float_inputs(mainlist,guesses,title='Select Output Spectrum Parameters',noscroll_max=20):
     win = Tkinter.Toplevel()
+    print 'A GUI has been opened'
     if len(mainlist) > noscroll_max:
         pygui = GoodPyGUI_scroll(win)
     else:
@@ -334,6 +336,7 @@ def user_float_inputs(mainlist,guesses,title='Select Output Spectrum Parameters'
 
 def user_int_input(guess=0,title='Number Requested',choice='Input'):
     win = Tkinter.Toplevel()
+    print 'A GUI has been opened'
     pygui = GoodPyGUI(win)
     pygui.set_title(win,title)
     pygui.add_caption(win,title)
@@ -367,6 +370,7 @@ def user_int_input(guess=0,title='Number Requested',choice='Input'):
 def get_boolean(title='Should We?'):
     associate = ['Yes','No']
     win = Tkinter.Toplevel()
+    print 'A GUI has been opened'
     pygui = GoodPyGUI(win)
     pygui.set_title(win,title)
     pygui.add_caption(win,title)

@@ -52,31 +52,37 @@ def write_param(param_name,param_vals,
         if param_vals: t.write('True ')
         else: t.write('False ')
     if p_type == 'list':
-        t.write('[')
-        for pvls in param_vals[:-1]:
-            if type(pvls) == type('string'):
-                t.write('"{0}",'.format(pvls))
-            else:
-                t.write('{0},'.format(pvls))
-        if type(pvls) == type('string'):
-            t.write('"{0}"]'.format(param_vals[-1]))
+        if len(param_vals) == 0:
+            t.write('[]')
         else:
-            t.write('{0}]'.format(param_vals[-1]))
+            t.write('[')
+            for pvls in param_vals[:-1]:
+                if type(pvls) == type('string'):
+                    t.write('"{0}",'.format(pvls))
+                else:
+                    t.write('{0},'.format(pvls))
+            if type(pvls) == type('string'):
+                t.write('"{0}"]'.format(param_vals[-1]))
+            else:
+                t.write('{0}]'.format(param_vals[-1]))
 
     if p_type == 'dict':
         pkeys = param_vals.keys()
-        t.write('{')
-        for pkey in pkeys[:-1]:
-            if type(pkey) == type('string'):
-                t.write('"{0}":'.format(pkey))
-            else:
-                t.write('{0}:'.format(pkey))
-            if type(param_vals[pkey]) == type('string'):
-                t.write('"{0}",'.format(param_vals[pkey]))
-            else:
-                t.write('{0},'.format(param_vals[pkey])) 
-        t.write('"{0}":"{1}"'.format(pkeys[-1],param_vals[pkeys[-1]]))
-        t.write('} ')
+        if len(pkeys) == 0:
+            t.write('{}')
+        else:
+            t.write('{')
+            for pkey in pkeys[:-1]:
+                if type(pkey) == type('string'):
+                    t.write('"{0}":'.format(pkey))
+                else:
+                    t.write('{0}:'.format(pkey))
+                if type(param_vals[pkey]) == type('string'):
+                    t.write('"{0}",'.format(param_vals[pkey]))
+                else:
+                    t.write('{0},'.format(param_vals[pkey])) 
+            t.write('"{0}":"{1}"'.format(pkeys[-1],param_vals[pkeys[-1]]))
+            t.write('} ')
     t.write('# {0} \n'.format(comment))
     i.close() #Close input file
     t.seek(0) #Rewind temporary file to beginning
@@ -107,8 +113,9 @@ def step_two_a_error(pm):
              ' nothing is being written to the log file.')
 
 def step_two_b_error(pm):
+    localvars = sys.exc_info()[2].tb_next.tb_next.tb_frame.f_locals
     print 'User Abort Detected in Step 2b'
-    localvars = sys.exc_info()[2].tb_next.tb_frame.f_locals
+    print localvars
     if 'dont_norm_list' in localvars:
         dont_norm = localvars['dont_norm_list']
         write_param('already_normalized',dont_norm,p_type='list')
