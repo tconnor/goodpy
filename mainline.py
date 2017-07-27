@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import sys
 import os
 if 'PYRAF_BETA_STATUS' in os.environ:
@@ -316,6 +317,7 @@ def run_step_five():
         irf_stp.background(obj)
         outname = obj[0].split('.')[1]
         irf_stp.imcombine(obj,outname)
+
     f_man.make_and_move(pm.science_list,'TRANS')
     f_man.prepend_list(pm.science_list,'l')
     f_man.make_and_move(pm.science_list,'FLUX')
