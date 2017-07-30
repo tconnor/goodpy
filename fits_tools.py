@@ -194,16 +194,21 @@ def get_value_pyraf(filename,paramname):
             pass
     return 'NullReturn'
 
+def get_value_pyfits(filename,paramname):
+    with pf.open(filename,mode='readonly') as hdulist:
+        return hdulist[0].header[paramname]
+
+def get_value(filename,paramname):
+    if has_pf:
+        return get_value_pyfits(filename,paramname)
+    else:
+        return get_value_pyraf(filename,paramname)
+    
 def get_theta(wnartifact,quartzlist):
     exptimes,gains = [],[]
     for filename in quartzlist:
-        if has_pf:
-            with pf.open(filename,mode='readonly') as hdulist:
-                exptime = hdulist[0].header['EXPTIME']
-                gain = hdulist[0].header['GAIN']
-        else:
-            exptime = get_value_pyraf(filename,'EXPTIME')
-            gain = get_value_pyraf(filename,'GAIN')
+        exptime = get_value(filename,'EXPTIME')
+        gain = get_value(filename,'GAIN')
         gains.append(gain)
         exptimes.append(exptime)
     if has_pf:

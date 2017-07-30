@@ -160,43 +160,71 @@ def run_step_two_a():
         subunit = "Quartz Artifact Frames"
         artifact_list = gui.select_subgroup(pm.quartz_list,
                                             subunit=subunit)
-        pm.quartz_list = f_man.separate_artifact_quartz(artifact_list,
-                                                        pm.quartz_list)
         if len(artifact_list) == 0:
             print 'No Artifact frames; skipping'
             break
-        elif len(artifact_list) > 1:
-            #if artifact already exists, remove it.
-            artifact='qtz_artifact.fits'
-            if f_man.check_for_file(artifact):
-                print artifact+' already exists.'
-                print "We're deleting it to prevent iraf conflict."
-                f_man.check_and_clear(artifact)
-            irf_stp.artifact_imcombine(artifact_list,artifact)
-        else:
-            artifact = artifact_list[0]
-        nartifact = 'nartifact.fits'
-        irf_stp.normalize_artifact(artifact,nartifact)
-        
-        wnartifact = 'wnartifact.fits'
 
-        one_theta, thetas = ftl.get_theta(nartifact,pm.quartz_list)
-        print one_theta,thetas,pm.quartz_list
-        if one_theta:
-            theta = thetas[0]
-            irf_stp.artifact_create(nartifact,theta,wnartifact)
-            for qtz_file in pm.quartz_list:
-                irf_stp.correct_artifact(wnartifact,qtz_file)
-        else:
-            for ii in range(len(pm.quartz_list)):
-                f_man.check_and_clear(wnartifact)
-                theta = thetas[ii]
+        art_slit = [ftl.get_value(aart,'Slit') for aart in artifact_list]
+        pm.quartz_list = f_man.separate_artifact_quartz(artifact_list,
+                                                        pm.quartz_list)
+        qtz_slit = [ftl.get_value(qqtz,'Slit') for qqtz in pm.quartz_list]
+        artifacted_quartzes = []
+        
+        for slit in set(slits):
+            art_sub = []
+            qtz_sub = []
+            for aa in range(len(artifact_list)):
+                if art_slit[aa] == slit:
+                    art_sub.append(artifact_list[aa])
+            for aa in range(len(pm.quartz_list)):
+                if qtz_slit[aa] == slit:
+                    qtz_sub.append(pm.quartz_list[aa])
+            if len(art_sub) == 0 or len(qtz_sub) == 0:
+                continue #Don't qtz correct if there's no need
+        
+            elif len(art_sub) > 1:
+                #if artifact already exists, remove it.
+                artifact='qtz_artifact.fits'
+                if f_man.check_for_file(artifact):
+                    print artifact+' already exists.'
+                    print "We're deleting it to prevent iraf conflict."
+                    f_man.check_and_clear(artifact)
+                irf_stp.artifact_imcombine(art_sub,artifact)
+            else:
+                artifact = art_sub[0]
+            nartifact = 'nartifact.fits'
+            f_man.check_and_clear(nartifact)
+            irf_stp.normalize_artifact(artifact,nartifact)
+            
+            wnartifact = 'wnartifact.fits'
+            f_man.check_and_clear(wnartifact)
+            one_theta, thetas = ftl.get_theta(nartifact,qtz_sub)
+            if one_theta:
+                theta = thetas[0]
                 irf_stp.artifact_create(nartifact,theta,wnartifact)
-                irf_stp.correct_artifact(wnartifact,pm.quartz_list[ii])
+                for qtz_file in qtz_sub:
+                    irf_stp.correct_artifact(wnartifact,qtz_file)
+            else:
+                for ii in range(len(qtz_sub)):
+                    f_man.check_and_clear(wnartifact)
+                    theta = thetas[ii]
+                    irf_stp.artifact_create(nartifact,theta,wnartifact)
+                    irf_stp.correct_artifact(wnartifact,qtz_sub[ii])
+
+            artifacted_quartzes.extend(qtz_sub)
+            
         f_man.make_and_move(artifact_list+
                             [artifact,nartifact,wnartifact],'ARTIFACT')
-        f_man.make_and_move(pm.quartz_list,'BIAS')
-        pm.quartz_list = f_man.prepend_list(pm.quartz_list,'a')
+        f_man.make_and_move(artifacted_quartzes,'BIAS')
+        tmp_qtz_list = pm.quartz_list + []
+        for qtz in pm.quartz_list:
+            if qtz in artifacted_quartzes:
+                tmp_qtz_list.append('a'+qtz)
+            else:
+                tmp_qtz.append(qtz)
+        pm.quartz_list = tmp_qtz + []
+        #pm.quartz_list = f_man.prepend_list(pm.quartz_list,'a')
+        
         break
 
     lgf.write_param('file_list',pm.file_list,p_type='list')
