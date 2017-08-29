@@ -3,14 +3,19 @@ import shutil
 import glob
 import logfile as lgf
 
-def make_directory(direc,silent=False,force_overwrite=True,notify=False,outmessage='Directory Created',append_dir=False):
+def make_directory(direc,silent=False,force_overwrite=True,notify=False,
+                   outmessage='Directory Created',append_dir=False):
     '''Makes a directory at location "direc"
     Arguments--
-        silent: If True, will suppress messages to terminal (Default = False)
-        force_overwrite: If False, will pass if directory already made (Default = True)
+        silent: If True, will suppress messages to
+                terminal (Default = False)
+        force_overwrite: If False, will pass if directory already made
+                         (Default = True)
         notify: If True, will print message to terminal (Default = False)
-        outmessage: If notify==True, message will be printed to terminal upon completion (Default = 'Directory Created')
-        append_dir: If notify==True, include new directory path at end of message (Default = False)'''
+        outmessage: If notify==True, message will be printed to terminal
+                    upon completion (Default = 'Directory Created')
+        append_dir: If notify==True, include new directory path at end
+                    of message (Default = False)'''
     if os.path.isfile(direc):
         isfile = True
     else:
@@ -26,10 +31,12 @@ def make_directory(direc,silent=False,force_overwrite=True,notify=False,outmessa
         elif isdir:
             try:
                 os.rmdir(direc)
-                if not silent: print 'Old empty directory removed to create directory'
+                if not silent:
+                    print 'Old empty directory removed to create directory'
             except OSError:
                 shutil.rmtree(direc)
-                if not silent: print 'Occupied directory removed to create directory'
+                if not silent:
+                    print 'Occupied directory removed to create directory'
         else:
             pass
         os.mkdir(direc)
@@ -137,7 +144,8 @@ def prepend_list(in_list,prefix):
 
 def make_and_move(move_list,folder_name):
     '''Moves all the files in move_list to folder_name, which is also created.'''
-    make_directory(folder_name,silent=False,force_overwrite=True,notify=False,outmessage='Directory Created',append_dir=False)
+    make_directory(folder_name,silent=False,force_overwrite=True,notify=False,
+                   outmessage='Directory Created',append_dir=False)
     move_file_list(move_list,folder_name)
     return
 
