@@ -39,7 +39,8 @@ def run_through_idb(filen,xmin='18',xmax='4111'):
     return x1,x2,dx
 
 
-def get_dx_params(arc_list,xmin='18',xmax='4111',use_fixed=False,x1=5000,x2=7000,dx=0.65):
+def get_dx_params(arc_list,xmin='18',xmax='4111',use_fixed=False,
+                  x1=5000,x2=7000,dx=0.65):
     outdict = {}
     for arc in arc_list:
         if use_fixed:
