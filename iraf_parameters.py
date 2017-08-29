@@ -41,17 +41,18 @@ def set_apflatten(apflatten):
     apflatten.line = "INDEF" #'Dispersion line'
     apflatten.nsum = 10 #'Number of dispersion lines to sum or median'
     apflatten.threshold = 10.0 #'Threshold for flattening spectra'
-    apflatten.pfit = "fit1d" #'|fit1d|fit2d|',,'Profile fitting type (fit1d|fit2d)'
+    apflatten.pfit = "fit1d" #'|fit1d|fit2d|Profile fitting type (fit1d|fit2d)'
     apflatten.clean = "No" #'Detect and replace bad pixels?'
     apflatten.saturation = "INDEF" #'Saturation level'
     apflatten.readnoise = 0 #'Read out noise sigma (photons)'
     apflatten.gain = 1 #'Photon gain (photons/data number)'
     apflatten.lsigma = 4.0 #'Lower rejection threshold'
     apflatten.usigma = 4.0 #'Upper rejection threshold'
-    apflatten.function = "legendre" #'|chebyshev|legendre|spline1|spline3|',,'Fitting function for normalization spectra'
+    apflatten.function = "legendre" #'|chebyshev|legendre|spline1|spline3|
+                                    #Fitting function for normalization spectra'
     apflatten.order = 5 #'Fitting function order'
     apflatten.sample = 4142 #'Sample regions'
-    apflatten.naverage = -5 #'Average or median' Positive values are for averages and negative points for medians. 
+    apflatten.naverage = -5 #'Average or median' Postv=avg, neg = med. 
     apflatten.niterate = 5 #'Number of rejection iterations'
     apflatten.low_reject = 3 #'Lower rejection sigma'
     apflatten.high_reject = 1 #'High upper rejection sigma'
@@ -70,6 +71,7 @@ def set_response(response):
     response.niterat = 1
     response.grow = 0
     return
+
 def set_aidpars_calibration(aidpars):
     #noao>twodspec>longslit>identify
     aidparrs.reflist = '' #"Reference coordinate list">
@@ -94,35 +96,34 @@ def set_aidpars_calibration(aidpars):
     aidparrs.rms = 0.2 #"RMS goal (fwidths)"
     aidparrs.fmatch = 0.2 #"Matching goal (fraction unmatched)"
     aidparrs.debug = '' #"Print debugging information" -- for developed
-
     return
 
 def set_autoidentify_calibration(autoidentify):
-    #autoidentify.images = None None None "Images containing features to be identified">
-    #autoidentify.crval = None None None "Approximate coordinate (at reference pixel)">
-    #autoidentify.cdelt = None None None "Approximate dispersion">
-    autoidentify.coordlist = 'linelist' # "Coordinate list">
-    autoidentify.units = 'angstroms' #"Coordinate units">
-    autoidentify.interactive = 'YES' # "Examine identifications interactively?">
-    autoidentify.section = 'middle line' #"Section to apply to two dimensional images">
-    autoidentify.nsum = 10 # "Number of lines/columns/bands to sum in 2D/3D images">
-    autoidentify.ftype = 'emission' #"Feature type">
-    autoidentify.fwidth = 15 # "Feature width in pixels">
-    autoidentify.cradius = 5.0 #"Centering radius in pixels">
-    autoidentify.threshold = 10 # "Feature threshold for centering">
-    autoidentify.minsep = 2.0 #"Minimum pixel separation">
-    autoidentify.match = 10 # "Coordinate list matching limit">
-    autoidentify.function = 'spline3' # "Coordinate function">
-    autoidentify.order = 3 # "Order of coordinate function">
-    autoidentify.sample = '*' #"Coordinate sample regions">
-    autoidentify.niterate = 0 #"Rejection iterations">
-    autoidentify.low_reject = 3.0 #"Lower rejection sigma">
-    autoidentify.high_reject = 3.0 #"Upper rejection sigma">
-    autoidentify.grow = 0.0 #"Rejection growing radius">
-    autoidentify.dbwrite = 'yes' # "Write results to database?">
-    autoidentify.overwrite = yes #"Overwrite existing database entries?">
-    autoidentify.database = 'database' #"Database in which to record feature data">
-    autoidentify.verbose = no # "Verbose output?">
+    #autoidentify.images = None Images containing features to be identified
+    #autoidentify.crval = None Approximate coordinate (at reference pixel)
+    #autoidentify.cdelt = None Approximate dispersion
+    autoidentify.coordlist = 'linelist' # Coordinate list
+    autoidentify.units = 'angstroms' #Coordinate units
+    autoidentify.interactive = 'YES' # Examine identifications interactively?
+    autoidentify.section = 'middle line' #Section to apply to 2D images
+    autoidentify.nsum = 10 # Number of lines/columns/bands to sum in 2D/3D images
+    autoidentify.ftype = 'emission' #Feature type
+    autoidentify.fwidth = 15 # Feature width in pixels
+    autoidentify.cradius = 5.0 #Centering radius in pixels
+    autoidentify.threshold = 10 # Feature threshold for centering
+    autoidentify.minsep = 2.0 #Minimum pixel separation
+    autoidentify.match = 10 # Coordinate list matching limit
+    autoidentify.function = 'spline3' # Coordinate function
+    autoidentify.order = 3 # Order of coordinate function
+    autoidentify.sample = '*' #Coordinate sample regions
+    autoidentify.niterate = 0 #Rejection iterations
+    autoidentify.low_reject = 3.0 #Lower rejection sigma
+    autoidentify.high_reject = 3.0 #Upper rejection sigma
+    autoidentify.grow = 0.0 #Rejection growing radius
+    autoidentify.dbwrite = 'yes' # Write results to database?
+    autoidentify.overwrite = yes #Overwrite existing database entries?
+    autoidentify.database = 'database' #Database in which to record feature data
+    autoidentify.verbose = no # Verbose output?
     return
 
 def set_identify_calibration(identify):
