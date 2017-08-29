@@ -8,7 +8,8 @@ except ImportError:
         has_pf = True
     except ImportError:
         has_pf = False
-        print ' Operating under the assumption that neither astropy nor pyfits are installed'
+        print 'Operating under the assumption that neither astropy',
+        print ' nor pyfits are installed'
 import goodman_functions as gdmn
 
 def observation_type(filename):
@@ -141,7 +142,9 @@ def find_param_with_comment_pyraf(filename,comment):
     If no match, the string 'NullReturn' is returned'''
     header_long = iraf.imheader(filename,lo=True,Stdout=True)
     for header_val in header_long:
-        trimmed = header_val.replace(' = ','!^!^!').replace(' / ','!^!^!').split('!^!^!')
+        trimmed = header_val.replace(' = ',
+                                     '!^!^!').replace(' / ',
+                                                      '!^!^!').split('!^!^!')
         if len(trimmed) < 3:
             continue
         elif trimmed[2] == comment:
@@ -171,7 +174,9 @@ def get_comment_pyraf(filename,paramname):
     If parameter is not in header, returns string 'NullReturn'.'''
     header_long = iraf.imheader(filename,lo=True,Stdout=True)
     for header_val in header_long:
-        trimmed = header_val.replace(' = ','!^!^!').replace(' / ','!^!^!').split('!^!^!')
+        trimmed = header_val.replace(' = ',
+                                     '!^!^!').replace(' / ',
+                                                      '!^!^!').split('!^!^!')
         if len(trimmed) < 3:
             continue
         elif trimmed[1].strip() == paramname:
@@ -185,7 +190,9 @@ def get_value_pyraf(filename,paramname):
     If parameter is not in header, returns string 'NullReturn'.'''
     header_long = iraf.imheader(filename,lo=True,Stdout=True)
     for header_val in header_long:
-        trimmed = header_val.replace(' = ','!^!^!').replace(' / ','!^!^!').split('!^!^!')
+        trimmed = header_val.replace(' = ',
+                                     '!^!^!').replace(' / ',
+                                                      '!^!^!').split('!^!^!')
         if len(trimmed) < 3:
             continue
         elif trimmed[1].strip() == paramname:

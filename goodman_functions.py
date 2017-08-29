@@ -6,9 +6,12 @@ def approximate_lambda(grating,g_ang,c_ang,soffset=0.0):
     Inputs: soffset: slit offset from CF (Default=0.0)'''
     alpha = g_ang + soffset
     beta = c_ang - g_ang
-    c_lam = (1000000. / grating) * (np.sin(np.radians(alpha)) + np.sin(np.radians(beta)))
-    b_lam = (1000000. / grating) * (np.sin(np.radians(alpha)) + np.sin(np.radians(beta-4.656)))
-    r_lam = (1000000. / grating) * (np.sin(np.radians(alpha)) + np.sin(np.radians(beta+4.656)))
+    c_lam = ((1000000. / grating) * (np.sin(np.radians(alpha))
+                                     + np.sin(np.radians(beta))))
+    b_lam = ((1000000. / grating) * (np.sin(np.radians(alpha))
+                                     + np.sin(np.radians(beta-4.656))))
+    r_lam = ((1000000. / grating) * (np.sin(np.radians(alpha))
+                                     + np.sin(np.radians(beta+4.656))))
     return b_lam,c_lam,r_lam
 
 def pix_to_lambda(pix,grating,g_ang,c_ang,soffset=0.0,binning=1.):
@@ -18,7 +21,11 @@ def pix_to_lambda(pix,grating,g_ang,c_ang,soffset=0.0,binning=1.):
    Binning: The binning of the spectrum. (Default = 1.)'''
     alpha = g_ang + soffset
     beta = c_ang - g_ang
-    lam = (1000000. / grating) * (np.sin(np.radians(alpha)) + np.sin(np.radians(beta) + np.arctan((pix * binning - 2048.) * (0.015 / 377.2))))
+    lam = ((1000000. / grating)
+           * (np.sin(np.radians(alpha))
+              + np.sin(np.radians(beta)
+                       + np.arctan((pix * binning - 2048.)
+                                   * (0.015 / 377.2)))))
     return lam
 
 def lambda_to_pix(lmbda,grating,g_ang,c_ang,soffset=0.0,binning=1.):
