@@ -22,9 +22,11 @@ def reduce_dimensions(filename):
     iraf.wcsreset(image=filename,wcs='world')
     return
 
-def bias_correct(file_list,xmin='18',xmax='4111',ymin='350',ymax='1570',bindefault=1):
+def bias_correct(file_list,xmin='18',xmax='4111',ymin='350',
+                 ymax='1570',bindefault=1):
     irf_prm.set_ccdproc(iraf.ccdproc)
-    biassecs = {1:'[4114:4142,1:1896]',2:'[4114:4142,1:1896]',3:'[4114:4142,1:1896]',4:'[4114:4142,1:1896]'} #NEED UPDATED
+    biassecs = {1:'[4114:4142,1:1896]',2:'[4114:4142,1:1896]',
+                3:'[4114:4142,1:1896]',4:'[4114:4142,1:1896]'} #NEED UPDATED
     #iraf.ccdproc.biassec = biassecs[binsize]
     iraf.ccdproc.trimsec = '['+xmin+':'+xmax+','+ymin+':'+ymax+']'
     for ff in file_list:
@@ -32,7 +34,8 @@ def bias_correct(file_list,xmin='18',xmax='4111',ymin='350',ymax='1570',bindefau
         if comm == '1 / Serial Binning,Pixels':
             binsize = iraf.hselect(ff,'PARAM18','yes')
         else:
-            param_name = ftl.find_param_with_comment(ff,'1 / Serial Binning,Pixels')
+            prm_com = '1 / Serial Binning,Pixels'
+            param_name = ftl.find_param_with_comment(ff,prm_com)
             if param_name == 'NullReturn':
                 binsize=bindefault
             else:
@@ -47,7 +50,8 @@ def artifact_imcombine(inlist,outname):
     for obj in inlist:
         imcinpt += obj +','
     imcinpt = imcinpt[:-1] #Drop trailing comma
-    iraf.imcombine(input=imcinpt,output=outname,sigmas=outname+'_sig',combine='median')
+    iraf.imcombine(input=imcinpt,output=outname,sigmas=outname+'_sig',
+                   combine='median')
     return
 
 def normalize_artifact(artifact,nartifact):
@@ -62,8 +66,10 @@ def normalize_artifact(artifact,nartifact):
     iraf.apflatten(input=artifact,output=nartifact)
     
 def artifact_create(artifact,theta,output):
-    iraf.imarith(operand1=artifact,operand2=theta,op='*',result='tmpartifact.fits')
-    iraf.imarith(operand1='tmpartifact.fits',operand2=1-theta,op='+',result=output)
+    iraf.imarith(operand1=artifact,operand2=theta,op='*',
+                 result='tmpartifact.fits')
+    iraf.imarith(operand1='tmpartifact.fits',operand2=1-theta,op='+',
+                 result=output)
     iraf.imdelete(images='tmpartifact.fits',go_ahead='yes',verify='no')
     return
 
@@ -72,7 +78,7 @@ def correct_artifact(wnartifact,qtz):
     return
 
 def normalize_quartzes(quartz_list,dont_norm_list):
-    '''Normalizes the files in quartz_list using noao>twodspec>longslit>response'''
+    '''Normalize files in quartz_list using noao>twodspec>longslit>response'''
     irf_prm.set_response(iraf.response)
     for quartz in quartz_list:
         if quartz in dont_norm_list:
@@ -82,33 +88,39 @@ def normalize_quartzes(quartz_list,dont_norm_list):
     return
 
 def quartz_divide(science_list,object_match):
-    '''Divides science frames by user-selected quartz frames'''
+    '''Divide science frames by user-selected quartz frames'''
     for obj in science_list:
         if len(object_match[obj]) > 1:
             qtzinpt = ''
             for qtz in object_match[obj]:
                 qtzinpt += qtz +','
             iraf.imcombine(input=qtzinpt,output='tempquartz')
-            iraf.imarith(operand1=obj,operand2='tempquartz',op='/',result='f'+obj)
+            iraf.imarith(operand1=obj,operand2='tempquartz',op='/',
+                         result='f'+obj)
             heditstr = 'Flat field images are '+qtzinpt[:-1]
             iraf.imdelete(images='tempquartz',go_ahead='yes',verify='no')
             if len(heditstr) > 65:
-                nfields = int(len(heditstr)/65) #Declare int for py3 compatibility
+                nfields = int(len(heditstr)/65)#Declare int for py3 compatibility
                 for ii in range(nfields+1):
                     writestr = heditstr[(ii*65):(ii+1)*65]
-                    iraf.hedit(images='f'+obj,fields='flatcor'+str(ii),value=writestr,add='yes',verify='No')
+                    iraf.hedit(images='f'+obj,fields='flatcor'+str(ii),
+                               value=writestr,add='yes',verify='No')
             else:
-                iraf.hedit(images='f'+obj,fields='flatcor',value=heditstr,add='yes',verify='No')
+                iraf.hedit(images='f'+obj,fields='flatcor',
+                           value=heditstr,add='yes',verify='No')
         else:
-            iraf.imarith(operand1=obj,operand2=object_match[obj][0],op='/',result='f'+obj)
+            iraf.imarith(operand1=obj,operand2=object_match[obj][0],op='/',
+                         result='f'+obj)
             heditstr = 'Flat field image is '+object_match[obj][0]
             if len(heditstr) > 65:
-                nfields = int(len(heditstr)/65) #Declare int for py3 compatibility
+                nfields = int(len(heditstr)/65)#Declare int for py3 compatibility
                 for ii in range(nfields+1):
                     writestr = heditstr[(ii*65):(ii+1)*65]
-                    iraf.hedit(images='f'+obj,fields='flatcor'+str(ii),value=writestr,add='yes',verify='No')
+                    iraf.hedit(images='f'+obj,fields='flatcor'+str(ii),
+                               value=writestr,add='yes',verify='No')
             else:
-                iraf.hedit(images='f'+obj,fields='flatcor',value=heditstr,add='yes',verify='No')
+                iraf.hedit(images='f'+obj,fields='flatcor',
+                           value=heditstr,add='yes',verify='No')
     return
 
 
@@ -142,7 +154,7 @@ def make_lambda_solution(arc_list,fcnamedict,dont_ident_list):
     return
 
 def transform(science_list,object_match,arc_fc_dict,arc_coords,fcstar='star'):
-    '''Transforms filename to t+filename using noao>twodspec>longslit>transform'''
+    '''Transform filename to t+filename using noao>twodspec>longslit>transform'''
     irf_prm.set_transform(iraf.transform)
     for obj in science_list:
         fcarc = arc_fc_dict[object_match[obj]]
@@ -175,7 +187,9 @@ def sensfunc(stdidx):
 def flux_calibrate(objlist,stdidx):
     irf_prm.set_calibrate(iraf.specred.calibrate)
     for clbobj in objlist:
-        iraf.specred.calibrate(input=clbobj,output='l'+clbobj,airmass=None,exptime=None,sensitivity='sens'+str(stdidx))
+        iraf.specred.calibrate(input=clbobj,output='l'+clbobj,
+                               airmass=None,exptime=None,
+                               sensitivity='sens'+str(stdidx))
     return
 
 def background(objlist):
@@ -188,5 +202,6 @@ def imcombine(inlist,outname):
     imcinpt = ''
     for obj in inlist:
         imcinpt += 'sl'+obj +','
-    iraf.imcombine(input=imcinpt,output=outname,sigmas=outname+'_sig',combine='median')
+    iraf.imcombine(input=imcinpt,output=outname,sigmas=outname+'_sig',
+                   combine='median')
     return
