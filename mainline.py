@@ -76,7 +76,7 @@ def main():
     
     #Display total time to complete
     t1 = time()
-    tmin = int( np.floor( (t1 - t0) / 60.) )
+    tmin = int((t1 - t0) / 60.) #int() also floor()s.
     tsec = (t1 - t0) % 60
     print 'Time: {0:2d}:{1:05.2f}'.format(tmin,tsec)
 
@@ -270,23 +270,36 @@ def run_step_three():
     '''Transform to uniform wavelength grid'''
     if not f_man.check_for_file('linelist'):
         f_man.write_linelist('linelist')
+    if not hasattr(pm,'arcs_identified'):
+        pm.arcs_identified=False
     if not hasattr(pm,'standard_traced'):
         pm.standard_traced=False
 
-    object_match = gui.find_single_match(pm.science_list,
-                                         pm.calib_list,
-                                         title='Arc Match',
-                                         caption_tail=' Arc Selection')
-    guesses = ftl.guess_dxvals(pm.science_list[0])
-    pm.arc_list = f_man.find_uniques_from_dict(object_match,pm.science_list)
-    arc_fc_dict =  f_man.make_fcname(pm.arc_list)
-    pm.std_list = gui.select_subgroup(pm.science_list,
-                                   subunit="Standard Stars")
-    non_std = [fits for fits in pm.science_list if fits not in pm.std_list]
-    subunit = "Supplementary Dispersion Frames"
-    supplement_list = gui.select_subgroup(non_std,subunit=subunit)
+    if not pm.arcs_identified:
+        pm.object_match = gui.find_single_match(pm.science_list,
+                                                pm.calib_list,
+                                                title='Arc Match',
+                                                caption_tail=' Arc Selection')
+        guesses = ftl.guess_dxvals(pm.science_list[0])
+        pm.arc_list = f_man.find_uniques_from_dict(pm.object_match,
+                                                   pm.science_list)
+        pm.arc_fc_dict =  f_man.make_fcname(pm.arc_list)
+        pm.std_list = gui.select_subgroup(pm.science_list,
+                                    subunit="Standard Stars")
+        pm.non_std = [fits for fits in pm.science_list if
+                      fits not in pm.std_list]
+        subunit = "Supplementary Dispersion Frames"
+        pm.supplement_list = gui.select_subgroup(pm.non_std,subunit=subunit)
+        lgf.write_param('object_match',pm.object_match,p_type='dict')
+        lgf.write_param('arc_list',pm.arc_list,p_type='list')
+        lgf.write_param('arc_fc_dict',pm.arc_fc_dict,p_type='dict')
+        lgf.write_param('std_list',pm.std_list,p_type='list')
+        lgf.write_param('non_std',pm.non_std,p_type='list')
+        lgf.write_param('supplement_list',pm.supplement_list,p_type='list')
+        lgf.write_param('arcs_identified',True,p_type='boolean')
+                                                
     if not pm.standard_traced:
-        irf_stp.standard_trace(pm.std_list,supplement_list)
+        irf_stp.standard_trace(pm.std_list,pm.supplement_list)
         lgf.write_param('standard_traced',True,p_type='boolean')
 
     if not hasattr(pm,'already_identified'):
@@ -294,7 +307,7 @@ def run_step_three():
     else:
         dont_ident = pm.already_identified
 
-    irf_stp.make_lambda_solution_auto(pm.arc_list,arc_fc_dict,dont_ident)
+    irf_stp.make_lambda_solution_auto(pm.arc_list,pm.arc_fc_dict,dont_ident)
     lgf.write_param('already_identified',pm.arc_list,p_type='list')
     
     guesses = ftl.guess_dxvals(pm.science_list[0])
@@ -302,10 +315,9 @@ def run_step_three():
     arc_coords = dato.get_dx_params(pm.arc_list,use_fixed=True,
                                     x1=dx_vals[0],x2=dx_vals[1],
                                     dx=dx_vals[2])
-    irf_stp.transform(pm.science_list,object_match,arc_fc_dict,arc_coords)
+    irf_stp.transform(pm.science_list,pm.object_match,pm.arc_fc_dict,arc_coords)
     f_man.bell() #Alert user
     lgf.write_param('step_three',True,p_type='boolean')
-    lgf.write_param('std_list',pm.std_list,p_type='list')
     print 'Step 3 Completed'
     return
 
@@ -313,7 +325,7 @@ def run_step_four():
     '''Make Standard star maps'''
     f_man.make_and_move(pm.calib_list,'CALIB')
     f_man.make_and_move(pm.science_list,'NORM')
-    pm.science_list = f_man.prepend_list(non_std,'t')
+    pm.science_list = f_man.prepend_list(pm.non_std,'t')
     pm.std_list = f_man.prepend_list(pm.std_list,'t')
     caption = 'Select individual standard stars'
     pm.super_std = gui.break_apart(pm.std_list,title='Standard Selection',
