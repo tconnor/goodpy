@@ -60,6 +60,36 @@ def guess_dxvals(filename):
     x2 *= 10. #nm to Angstroms
     return x1,x2,dx
 
+def guess_crval_crdelt(filename,binning=1.):
+    grating = get_value(filename,'GRATING')
+    cam_ang = get_value(filename,'CAM_ANG')
+    grt_ang = get_value(filename,'GRT_ANG')
+    grating_dict = {'600':0.65,'400':1.0,'300':1.33,'1200':0.333}
+    dx = 1.0
+    grate_val = 400
+    for grting in grating_dict:
+        if grting in grating:
+            dx = grating_dict[grting]
+            grate_val = float(grting)
+    cpix = 2048. / binning
+    crval = gdmn.pix_to_lambda(cpix,grate_val,grt_ang,cam_ang,binning=binning)
+    return crval,dx
+
+def get_binning(filename,bindefault=1):
+    '''Get the binning size from the header of filename'''
+    comm = get_comment(filename,'PARAM18')
+    if comm == '1 / Serial Binning,Pixels':
+        binsize = get_value(filename,'PARAM18')
+    else:
+        prm_com = '1 / Serial Binning,Pixels'
+        param_name = find_param_with_comment(ff,prm_com)
+        if param_name == 'NullReturn':
+            binsize=bindefault
+        else:
+            binsize = get_value(ff,param_name)
+    return int(binsize)
+
+
 def guess_mode(filelist,g_ang_tol = 0.2,c_ang_tol=0.2):
     '''Runs through all of the files. Tries to guess if they were
     obtained in different modes'''
@@ -186,20 +216,9 @@ def get_comment_pyraf(filename,paramname):
     return 'NullReturn'
 
 def get_value_pyraf(filename,paramname):
-    '''Using Pyraf methods, return the comment for a paramname.
+    '''Using Pyraf methods, return the value for a paramname.
     If parameter is not in header, returns string 'NullReturn'.'''
-    header_long = iraf.imheader(filename,lo=True,Stdout=True)
-    for header_val in header_long:
-        trimmed = header_val.replace(' = ',
-                                     '!^!^!').replace(' / ',
-                                                      '!^!^!').split('!^!^!')
-        if len(trimmed) < 3:
-            continue
-        elif trimmed[1].strip() == paramname:
-            return trimmed[1].strip()
-        else:
-            pass
-    return 'NullReturn'
+    return iraf.hselect(filename,paramname,'yes')
 
 def get_value_pyfits(filename,paramname):
     with pf.open(filename,mode='readonly') as hdulist:
