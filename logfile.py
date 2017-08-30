@@ -54,6 +54,13 @@ def write_param(param_name,param_vals,
     if p_type == 'list':
         if len(param_vals) == 0:
             t.write('[]')
+        elif len(param_vals) == 1:
+            t.write('[')
+            pvls = param_vals[0]
+            if type(pvls) == type('string'):
+                t.write('"{0}"]'.format(pvls))
+            else:
+                t.write('{0}]'.format(pvls))
         else:
             t.write('[')
             for pvls in param_vals[:-1]:
