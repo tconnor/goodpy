@@ -82,11 +82,11 @@ def get_binning(filename,bindefault=1):
         binsize = get_value(filename,'PARAM18')
     else:
         prm_com = '1 / Serial Binning,Pixels'
-        param_name = find_param_with_comment(ff,prm_com)
+        param_name = find_param_with_comment(filename,prm_com)
         if param_name == 'NullReturn':
             binsize=bindefault
         else:
-            binsize = get_value(ff,param_name)
+            binsize = get_value(filename,param_name)
     return int(binsize)
 
 

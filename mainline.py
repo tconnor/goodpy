@@ -270,6 +270,9 @@ def run_step_three():
     '''Transform to uniform wavelength grid'''
     if not f_man.check_for_file('linelist'):
         f_man.write_linelist('linelist')
+    if not hasattr(pm,'standard_traced'):
+        pm.standard_traced=False
+
     object_match = gui.find_single_match(pm.science_list,
                                          pm.calib_list,
                                          title='Arc Match',
@@ -291,7 +294,7 @@ def run_step_three():
     else:
         dont_ident = pm.already_identified
 
-    irf_stp.make_lambda_solution(pm.arc_list,arc_fc_dict,dont_ident)
+    irf_stp.make_lambda_solution_auto(pm.arc_list,arc_fc_dict,dont_ident)
     lgf.write_param('already_identified',pm.arc_list,p_type='list')
     
     guesses = ftl.guess_dxvals(pm.science_list[0])
