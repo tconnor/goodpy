@@ -73,6 +73,7 @@ def guess_crval_crdelt(filename,binning=1.):
             grate_val = float(grting)
     cpix = 2048. / binning
     crval = gdmn.pix_to_lambda(cpix,grate_val,grt_ang,cam_ang,binning=binning)
+    crval *= 10. #Angstroms from nm
     return crval,dx
 
 def get_binning(filename,bindefault=1):

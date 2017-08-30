@@ -30,16 +30,7 @@ def bias_correct(file_list,xmin='18',xmax='4111',ymin='350',
     #iraf.ccdproc.biassec = biassecs[binsize]
     iraf.ccdproc.trimsec = '['+xmin+':'+xmax+','+ymin+':'+ymax+']'
     for ff in file_list:
-        comm = ftl.get_comment(ff,'PARAM18')
-        if comm == '1 / Serial Binning,Pixels':
-            binsize = iraf.hselect(ff,'PARAM18','yes')
-        else:
-            prm_com = '1 / Serial Binning,Pixels'
-            param_name = ftl.find_param_with_comment(ff,prm_com)
-            if param_name == 'NullReturn':
-                binsize=bindefault
-            else:
-                binsize = iraf.hselect(ff,param_name,'yes')
+        binsize = ftl.get_binning(ff,bindefault=bindefault)
         iraf.ccdproc.biassec = biassecs[binsize]
         output = 'b'+ff
         iraf.ccdproc(images=ff,output=output,ccdtype = "")
@@ -144,6 +135,7 @@ def make_lambda_solution(arc_list,fcnamedict,dont_ident_list):
     irf_prm.set_identify_calibration(iraf.identify)
     irf_prm.set_reidentify_calibration(iraf.reidentify)
     irf_prm.set_fitcoords_calibration(iraf.fitcoords)
+    
     for arc in arc_list:
         if arc in dont_ident_list:
             continue
@@ -152,6 +144,31 @@ def make_lambda_solution(arc_list,fcnamedict,dont_ident_list):
         iraf.fitcoords(images=arc[:-5],fitname=fcnamedict[arc])
         dont_ident_list.append(arc)
     return
+
+def make_lambda_solution_auto(arc_list,fcnamedict,dont_ident_list,binning=1.):
+    irf_prm.set_aidpars_calibration(iraf.aidpars)
+    irf_prm.set_autoidentify_calibration(iraf.autoidentify)
+    irf_prm.set_identify_calibration(iraf.identify)
+    irf_prm.set_reidentify_calibration(iraf.reidentify)
+    irf_prm.set_fitcoords_calibration(iraf.fitcoords)
+    
+    for arc in arc_list:
+        if arc in dont_ident_list:
+            continue
+        first_value_str = ftl.get_value(arc,'CCDSEC')
+        first_value = int(first_value_str[1:].split(':')[0])
+        binning = ftl.get_binning(arc,bindefault=binning)
+        iraf.aidpars.crpix = int(2048. / binning) - first_value
+        fit_crval, fit_cdelt = ftl.guess_crval_crdelt(arc,binning=binning)
+        print fit_crval
+        print fit_cdelt
+        print iraf.aidpars.crpix
+        iraf.autoidentify(images=arc,crval=fit_crval,cdelt=fit_cdelt)
+        iraf.reidentify(reference=arc,images=arc)
+        iraf.fitcoords(images=arc[:-5],fitname=fcnamedict[arc])
+        dont_ident_list.append(arc)
+    return
+
 
 def transform(science_list,object_match,arc_fc_dict,arc_coords,fcstar='star'):
     '''Transform filename to t+filename using noao>twodspec>longslit>transform'''

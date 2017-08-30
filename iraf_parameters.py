@@ -122,9 +122,9 @@ def set_autoidentify_calibration(autoidentify):
     autoidentify.high_reject = 3.0 #Upper rejection sigma
     autoidentify.grow = 0.0 #Rejection growing radius
     autoidentify.dbwrite = 'yes' # Write results to database?
-    autoidentify.overwrite = yes #Overwrite existing database entries?
+    autoidentify.overwrite = 'yes' #Overwrite existing database entries?
     autoidentify.database = 'database' #Database in which to record feature data
-    autoidentify.verbose = no # Verbose output?
+    autoidentify.verbose = 'no' # Verbose output?
     return
 
 def set_identify_calibration(identify):
