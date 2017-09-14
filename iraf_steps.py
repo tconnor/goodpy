@@ -1,7 +1,9 @@
 from pyraf import iraf
 import iraf_parameters as irf_prm
 import fits_tools as ftl
-
+if ftl.has_pf:
+    import background_select as bkg
+    
 def gui_alert():
     print 'An IRAF GUI has been opened and requires your input'
     
@@ -201,24 +203,52 @@ def sensfunc(stdidx):
     iraf.sensfunc(standards='std'+str(stdidx),sensitivity='sens'+str(stdidx))
     return
 
+def background(objlist):
+    irf_prm.set_background(iraf.background)
+    if ftl.has_pf:
+        print 'Please select regions to mask from background determination'
+        for bkgobj in objlist:
+            mask_regions = bkg.get_mask_regions(bkgobj)
+            msk_lo,msk_hi,y_max = mask_regions
+            sample = '0:'
+            for ii in range(len(msk_lo)):
+                sample += '{0:d},{1:d}:'.format(msk_lo[ii],min(y_max,msk_hi[ii]))
+            sample += '{0:d}'.format(y_max)
+            iraf.background(input=bkgobj,output='s'+bkgobj,interactive='No',
+                            sample=sample)
+    else:
+        for bkgobj in objlist:
+            iraf.background(input=bkgobj,output='s'+bkgobj,interactive='Yes',
+                            sample='*')
+    return
+
+
 def flux_calibrate(objlist,stdidx):
     irf_prm.set_calibrate(iraf.specred.calibrate)
     for clbobj in objlist:
-        iraf.specred.calibrate(input=clbobj,output='l'+clbobj,
+        iraf.specred.calibrate(input='s'+clbobj,output='ls'+clbobj,
                                airmass=None,exptime=None,
                                sensitivity='sens'+str(stdidx))
     return
 
-def background(objlist):
-    irf_prm.set_background(iraf.background)
-    for bkgobj in objlist:
-        iraf.background(input='l'+bkgobj,output='sl'+bkgobj)
+def apall_sci(objlist):
+    irf_prm.set_apall_science(iraf.apall)
+    for sciobj in objlist:
+        iraf.apall(input='ls'+sciobj,output = 'als'+sciobj,nfind=0)
+    return
+
+def scombine(objlist,outname):
+    scinpt = ''
+    for obj in objlist:
+        scinpt += 'als'+obj+','
+    iraf.scombine(input=scinpt,output=outname,weight='exposure',
+                  combine='median')
     return
 
 def imcombine(inlist,outname):
     imcinpt = ''
     for obj in inlist:
-        imcinpt += 'sl'+obj +','
+        imcinpt += 'ls'+obj +','
     iraf.imcombine(input=imcinpt,output=outname,sigmas=outname+'_sig',
                    combine='median')
     return

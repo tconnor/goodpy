@@ -259,8 +259,8 @@ def set_apall_std(apall):
     apall.extras = 'Yes'
     apall.review = 'Yes'
     apall.nsum = 10
-    apall.lower = -70
-    apall.upper = 70
+    apall.lower = -40
+    apall.upper = 40
     apall.b_funct = 'chebyshev'
     apall.b_order = 1
     apall.b_sampl = '-150:-100,100:150'
@@ -292,13 +292,13 @@ def set_apall_std(apall):
     apall.t_low_r = 3
     apall.t_high_ = 3
     apall.t_grow = 0
-    apall.backgro = 'none'
+    apall.backgro = 'median'
     apall.skybox = 1
     apall.weights = 'none'
     apall.pfit = 'fit1d'
     apall.clean = 'No'
-    apall.readnoi = 0
-    apall.gain = 1
+    apall.readnoi = 'RDNOISE'
+    apall.gain = 'GAIN'
     apall.lsigma = 4
     apall.usigma = 4
     apall.nsubaps= 1
@@ -336,13 +336,76 @@ def set_calibrate(calibrate):
     calibrate.exptime = None
     return
 
+def set_apall_science(apall):
+    #noao>imred>specred>apall
+    apall.format = 'multispec'
+    apall.apertures = ''
+    apall.references = ''
+    apall.profiles = ''        
+    apall.interac = 'Yes'
+    apall.find = 'No'
+    apall.recente = 'Yes'
+    apall.resize = 'Yes'
+    apall.edit = 'Yes'
+    apall.trace = 'Yes'
+    apall.fittrac = 'Yes'
+    apall.extract = 'Yes'
+    apall.extras = 'Yes'
+    apall.review = 'Yes'
+    apall.nsum = -50
+    apall.line = 3000
+    apall.lower = -20
+    apall.upper = 20
+    apall.b_funct = 'chebyshev'
+    apall.b_order = 1
+    apall.b_sampl = '-200:-100,100:200'
+    apall.b_naver = -9
+    apall.b_niter = 1
+    apall.b_low_r = 3
+    apall.b_high_ = 3
+    apall.b_grow = 1
+    apall.width = 10
+    apall.radius = 10
+    apall.thresho = 0
+    apall.nfind = 0
+    apall.minsep = 5
+    apall.maxsep = 1000
+    apall.order = 'increasing'
+    apall.shift = 'Yes'
+    apall.ylevel = 0.01
+    apall.peak = 'Yes'
+    apall.bkg = 'Yes'
+    apall.r_grow = 0
+    apall.avglimi = 'No'
+    apall.t_nsum = 50
+    apall.t_step = 50
+    apall.t_nlost = 3
+    apall.t_funct = 'legendre'
+    apall.t_order = 1
+    apall.t_naver = 25
+    apall.t_niter = 0
+    apall.t_low_r = 3
+    apall.t_high_ = 3
+    apall.t_grow = 0
+    apall.backgro = 'fit'
+    apall.skybox = 1
+    apall.weights = 'none'
+    apall.pfit = 'fit2d'
+    apall.clean = 'Yes'
+    apall.readnoi = 'RDNOISE'
+    apall.gain = 'GAIN'
+    apall.lsigma = 4
+    apall.usigma = 3
+    apall.nsubaps= 1
+    return
+
 def set_background(background):
     #noao>imred>specred>background
     background.axis = 2
     background.interac = 'Yes'
-    background.naverag = 1
+    background.naverag = -25
     background.functio = 'chebyshev'
-    background.order = 1
+    background.order = 5
     background.low_rej = 0
     background.high_re = 0
     background.niterat = 3
