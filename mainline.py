@@ -78,7 +78,7 @@ def main():
     t1 = time()
     tmin = int((t1 - t0) / 60.) #int() also floor()s.
     tsec = (t1 - t0) % 60
-    print 'Time: {0:2d}:{1:05.2f}'.format(tmin,tsec)
+    print 'Time: {0:02d}:{1:05.2f}'.format(tmin,tsec)
 
 
 
@@ -363,21 +363,29 @@ def run_step_five():
                                            caption_tail=caption_tail)
     if not hasattr(pm,'already_calibrated'):
         pm.already_calibrated = []
+    pm.extr1d = gui.get_boolean('Perform 1-D extractions?')
 
     for obj in super_science:
         if obj in pm.already_calibrated:
             continue
         stdidx = pm.calib_stars.index(standard_match[obj[0]])
-        irf_stp.flux_calibrate(obj,stdidx)
         irf_stp.background(obj)
+        irf_stp.flux_calibrate(obj,stdidx)
+        if pm.extr1d:
+            irf_stp.apall_sci(obj)
+            soutname = 's_'+obj[0].split('.')[1]
+            irf_stp.scombine(obj,soutname)
         outname = obj[0].split('.')[1]
         irf_stp.imcombine(obj,outname)
 
     f_man.make_and_move(pm.science_list,'TRANS')
-    f_man.prepend_list(pm.science_list,'l')
-    f_man.make_and_move(pm.science_list,'FLUX')
     f_man.prepend_list(pm.science_list,'s')
     f_man.make_and_move(pm.science_list,'BKG')
+    f_man.prepend_list(pm.science_list,'l')
+    f_man.make_and_move(pm.science_list,'FLUX')
+    if pm.extr1d:
+        aperturelist = ['a'+flnm for flnm in pm.science_list]
+        f_man.make_and_move(aperturelist,'APEX')
 
     lgf.write_param('step_five',True,p_type='boolean')
     print 'Step 5 Completed'
