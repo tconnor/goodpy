@@ -70,13 +70,15 @@ def correct_artifact(wnartifact,qtz):
     iraf.imarith(operand1=qtz,operand2=wnartifact,op='/',result='a'+qtz)
     return
 
-def normalize_quartzes(quartz_list,dont_norm_list):
+def normalize_quartzes(quartz_list,dont_norm_list,fix_banding):
     '''Normalize files in quartz_list using noao>twodspec>longslit>response'''
     irf_prm.set_response(iraf.response)
     for quartz in quartz_list:
         if quartz in dont_norm_list:
             continue
         iraf.response(calibrat=quartz,normaliz=quartz,response='n'+quartz)
+        if fix_banding:
+            ftl.fix_quartz_banding('n'+quartz)
         dont_norm_list.append(quartz)
     return
 
@@ -190,13 +192,14 @@ def transform(science_list,object_match,arc_fc_dict,arc_coords,fcstar='star'):
 def apall_std(stdlist):
     irf_prm.set_apall_std(iraf.apall)
     for std in stdlist:
-        iraf.apall(input=std,output = 's'+std,nfind=0)#,interactive='no')
+        iraf.apall(input='k'+std,output = 'sk'+std,nfind=0,lower=-40,
+                   upper=40)#,interactive='no')
     return
 
 def standard(stdlist,std_name,stdidx):
     irf_prm.set_standard(iraf.standard)
     for std in stdlist:
-        iraf.standard(input='s'+std,output='std'+str(stdidx),star_name=std_name)
+        iraf.standard(input='sk'+std,output='std'+str(stdidx),star_name=std_name)
     return
 
 def sensfunc(stdidx):
@@ -214,11 +217,11 @@ def background(objlist):
             for ii in range(len(msk_lo)):
                 sample += '{0:d},{1:d}:'.format(msk_lo[ii],min(y_max,msk_hi[ii]))
             sample += '{0:d}'.format(y_max)
-            iraf.background(input=bkgobj,output='s'+bkgobj,interactive='No',
+            iraf.background(input=bkgobj,output='k'+bkgobj,interactive='No',
                             sample=sample)
     else:
         for bkgobj in objlist:
-            iraf.background(input=bkgobj,output='s'+bkgobj,interactive='Yes',
+            iraf.background(input=bkgobj,output='k'+bkgobj,interactive='Yes',
                             sample='*')
     return
 
@@ -226,7 +229,7 @@ def background(objlist):
 def flux_calibrate(objlist,stdidx):
     irf_prm.set_calibrate(iraf.specred.calibrate)
     for clbobj in objlist:
-        iraf.specred.calibrate(input='s'+clbobj,output='ls'+clbobj,
+        iraf.specred.calibrate(input='k'+clbobj,output='lk'+clbobj,
                                airmass=None,exptime=None,
                                sensitivity='sens'+str(stdidx))
     return
@@ -234,13 +237,13 @@ def flux_calibrate(objlist,stdidx):
 def apall_sci(objlist):
     irf_prm.set_apall_science(iraf.apall)
     for sciobj in objlist:
-        iraf.apall(input='ls'+sciobj,output = 'als'+sciobj,nfind=0)
+        iraf.apall(input='lk'+sciobj,output = 'alk'+sciobj,nfind=0)
     return
 
 def scombine(objlist,outname):
     scinpt = ''
     for obj in objlist:
-        scinpt += 'als'+obj+','
+        scinpt += 'alk'+obj+','
     iraf.scombine(input=scinpt,output=outname,weight='exposure',
                   combine='median')
     return
@@ -248,7 +251,7 @@ def scombine(objlist,outname):
 def imcombine(inlist,outname):
     imcinpt = ''
     for obj in inlist:
-        imcinpt += 'ls'+obj +','
+        imcinpt += 'lk'+obj +','
     iraf.imcombine(input=imcinpt,output=outname,sigmas=outname+'_sig',
                    combine='median')
     return

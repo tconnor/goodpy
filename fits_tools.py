@@ -11,6 +11,7 @@ except ImportError:
         print 'Operating under the assumption that neither astropy',
         print ' nor pyfits are installed'
 import goodman_functions as gdmn
+import scipy.ndimage.filters as filters
 
 def observation_type(filename):
     splitname = filename.split('.')
@@ -250,3 +251,23 @@ def get_theta(wnartifact,quartzlist):
     else:
         #Different settings, so different wn images
         return False, thetas
+
+def fix_quartz_banding(qtzfile,gsize_1 = 3, gsize_2 = 120):
+    '''Remove banding pattern from quartz lamps. Experimental.
+
+    On quartz lamp images, at least those taken with the blue camera
+    a 'waves of grain' like patter appears. This is not present in science
+    data. To correct for this, the medium-sized physical structure is divided
+    out of the quartz image. This is done by dividing a gaussian smoothed
+    version of the image out and multiplying in a gaussian smoothed image; the
+    kernel size of the first is gsize_1, and should be much smaller than gsize_2,
+    the kernel size of the second. Saves the result to w+qtzfile.'''
+    if qtzfile[-5:] != '.fits':
+        qtzfile += '.fits'
+    print 'Applying the banding correction to {}'.format(qtzfile)
+    data = pf.open(qtzfile)[0].data
+    smallscale = filters.gaussian_filter(data,gsize_1)
+    largescale = filters.gaussian_filter(data,gsize_2)
+    outdata = (data / smallscale) * largescale
+    pf.writeto('w'+qtzfile,outdata,clobber=True)
+    return

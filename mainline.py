@@ -243,8 +243,13 @@ def run_step_two_b():
         dont_norm = []
     else:
         dont_norm = pm.already_normalized
-        
-    irf_stp.normalize_quartzes(pm.quartz_list,dont_norm)
+    if not hasattr(pm,'fix_quartz_banding'):
+        checkstring = 'Are you fixing the banding in Quartz frames?'
+        if not ftl.has_pf:
+            pm.fix_quartz_banding = False
+        else:
+            pm.fix_quartz_banding = gui.get_boolean(checkstring)
+    irf_stp.normalize_quartzes(pm.quartz_list,dont_norm,pm.fix_quartz_banding)
     lgf.write_param('already_normalized',pm.quartz_list,p_type='list')
     
     if pm.art_cor:
@@ -252,6 +257,10 @@ def run_step_two_b():
     else:
         f_man.make_and_move(pm.quartz_list,'BIAS')            
     pm.quartz_list = f_man.prepend_list(pm.quartz_list,'n')
+    if ftl.has_pf:
+        f_man.make_and_move(pm.quartz_list,'BNDQTZ')
+        pm.quartz_list = f_man.prepend_list(pm.quartz_list,'w')
+        
     object_match = gui.find_match(pm.science_list,pm.quartz_list,
                                   title="Quartz Match",
                                   caption_tail=' QTZ Selection')
@@ -318,15 +327,17 @@ def run_step_three():
     irf_stp.transform(pm.science_list,pm.object_match,pm.arc_fc_dict,arc_coords)
     f_man.bell() #Alert user
     lgf.write_param('step_three',True,p_type='boolean')
+    f_man.make_and_move(pm.calib_list,'CALIB')
+    f_man.make_and_move(pm.science_list,'NORM')
+    pm.science_list = f_man.prepend_list(pm.non_std,'t')
+    pm.std_list = f_man.prepend_list(pm.std_list,'t')
+    lgf.write_param('science_list',pm.science_list,p_type='list')
+    lgf.write_param('std_list',pm.std_list,p_type='list')
     print 'Step 3 Completed'
     return
 
 def run_step_four():
     '''Make Standard star maps'''
-    f_man.make_and_move(pm.calib_list,'CALIB')
-    f_man.make_and_move(pm.science_list,'NORM')
-    pm.science_list = f_man.prepend_list(pm.non_std,'t')
-    pm.std_list = f_man.prepend_list(pm.std_list,'t')
     caption = 'Select individual standard stars'
     pm.super_std = gui.break_apart(pm.std_list,title='Standard Selection',
                                 caption=caption)
@@ -334,6 +345,7 @@ def run_step_four():
     pm.calib_stars = []
     for stdl in pm.super_std:
         stdidx = pm.super_std.index(stdl)
+        irf_stp.background(stdl)
         irf_stp.apall_std(stdl)
         std_name = gui.find_single_match([stdl[0]],std_options,
                                          caption_tail=' Star Name',
@@ -342,6 +354,8 @@ def run_step_four():
         pm.calib_stars.append(std_name)
         irf_stp.sensfunc(stdidx)
     f_man.make_and_move(pm.std_list,'TRANS')
+    f_man.prepend_list(pm.std_list,'k')
+    f_man.make_and_move(pm.std_list,'BKGSTD')
     f_man.prepend_list(pm.std_list,'s')
     f_man.make_and_move(pm.std_list,'STD')
     
@@ -379,7 +393,7 @@ def run_step_five():
         irf_stp.imcombine(obj,outname)
 
     f_man.make_and_move(pm.science_list,'TRANS')
-    f_man.prepend_list(pm.science_list,'s')
+    f_man.prepend_list(pm.science_list,'k')
     f_man.make_and_move(pm.science_list,'BKG')
     f_man.prepend_list(pm.science_list,'l')
     f_man.make_and_move(pm.science_list,'FLUX')

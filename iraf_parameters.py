@@ -286,7 +286,7 @@ def set_apall_std(apall):
     apall.t_step = 10
     apall.t_nlost = 3
     apall.t_funct = 'legendre'
-    apall.t_order = 2
+    apall.t_order = 5
     apall.t_naver = 1
     apall.t_niter = 0
     apall.t_low_r = 3
