@@ -76,7 +76,8 @@ def normalize_quartzes(quartz_list,dont_norm_list,fix_banding):
     for quartz in quartz_list:
         if quartz in dont_norm_list:
             continue
-        iraf.response(calibrat=quartz,normaliz=quartz,response='n'+quartz)
+        iraf.response(calibrat=quartz,normaliz=quartz,response='n'+quartz,
+                      interactive='No')
         if fix_banding:
             ftl.fix_quartz_banding('n'+quartz)
         dont_norm_list.append(quartz)

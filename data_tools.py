@@ -76,3 +76,16 @@ def std_options():
     return std_options
 
 
+def guess_qtz_matches(science_list,quartz_list):
+    '''Guess the two quartz images that go with a scienceo bservation'''
+    qtz_numb = np.array([int(q.split('.')[0][-4:]) for q in quartz_list])
+    obj_numb = [int(s.split('.')[0][-4:]) for s in science_list]
+    outdict = {}
+    for s_idx in range(len(science_list)):
+        offset = np.abs(qtz_numb - obj_numb[s_idx])
+        q_match = []
+        matched_offsets = np.where(offset < 4)[0]
+        for qq in range(len(matched_offsets)):
+            q_match.append(quartz_list[matched_offsets[qq]])
+        outdict[science_list[s_idx]] = q_match
+    return outdict

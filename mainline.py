@@ -257,13 +257,15 @@ def run_step_two_b():
     else:
         f_man.make_and_move(pm.quartz_list,'BIAS')            
     pm.quartz_list = f_man.prepend_list(pm.quartz_list,'n')
-    if ftl.has_pf:
+    if pm.fix_quartz_banding:
         f_man.make_and_move(pm.quartz_list,'BNDQTZ')
         pm.quartz_list = f_man.prepend_list(pm.quartz_list,'w')
-        
+    qtzmatch_presels = dato.guess_qtz_matches(pm.science_list,
+                                              pm.quartz_list)
     object_match = gui.find_match(pm.science_list,pm.quartz_list,
                                   title="Quartz Match",
-                                  caption_tail=' QTZ Selection')
+                                  caption_tail=' QTZ Selection',
+                                  prepick=True,presels=qtzmatch_presels)
     irf_stp.quartz_divide(pm.science_list,object_match)
     f_man.move_file_list(pm.science_list,'BIAS')
     pm.science_list = f_man.prepend_list(pm.science_list,'f')

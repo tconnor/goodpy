@@ -268,6 +268,7 @@ def fix_quartz_banding(qtzfile,gsize_1 = 3, gsize_2 = 120):
     data = pf.open(qtzfile)[0].data
     smallscale = filters.gaussian_filter(data,gsize_1)
     largescale = filters.gaussian_filter(data,gsize_2)
-    outdata = (data / smallscale) * largescale
+    #outdata = (data / smallscale) * largescale
+    outdata = largescale
     pf.writeto('w'+qtzfile,outdata,clobber=True)
     return

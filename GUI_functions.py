@@ -100,7 +100,8 @@ def center(toplevel):
     y = h/2 - size[1]/2
     toplevel.geometry("%dx%d+%d+%d" % (size + (x, y)))
 
-def find_match(principle, associate,title='GUI',caption_tail=' Selection',noscroll_max=20):
+def find_match(principle, associate,title='GUI',caption_tail=' Selection',
+               noscroll_max=20,prepick=False,presels={}):
     '''Uses GoodPyGUI to list a selection of possible matches, and returns user selection'''
     outdict = {}
     for obj in principle:
@@ -113,11 +114,14 @@ def find_match(principle, associate,title='GUI',caption_tail=' Selection',noscro
         pygui.add_caption(win,obj+caption_tail)
         scoredict = {}
         obj_match = []
+        pygui.add_close_button(win,'Confirm')
         for assoc in associate:
             scoredict = pygui.add_checkbox(win,assoc,scoredict)
-        pygui.add_close_button(win,'Confirm')
         needs_match = True
         center(win)
+        if prepick:
+            for pre_sel in presels[obj]:
+                scoredict[pre_sel].set(True)
         while needs_match:
             win.mainloop()
             for assoc in associate:
