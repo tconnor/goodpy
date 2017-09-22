@@ -214,9 +214,9 @@ def sensfunc(stdidx):
     iraf.sensfunc(standards='std'+str(stdidx),sensitivity='sens'+str(stdidx))
     return
 
-def background(objlist):
+def background(objlist,unique=True):
     irf_prm.set_background(iraf.background)
-    if ftl.has_pf:
+    if ftl.has_pf and unique:
         print 'Please select regions to mask from background determination'
         for bkgobj in objlist:
             mask_regions = bkg.get_mask_regions(bkgobj)
@@ -225,6 +225,17 @@ def background(objlist):
             for ii in range(len(msk_lo)):
                 sample += '{0:d},{1:d}:'.format(msk_lo[ii],min(y_max,msk_hi[ii]))
             sample += '{0:d}'.format(y_max)
+            iraf.background(input=bkgobj,output='k'+bkgobj,interactive='No',
+                            sample=sample)
+    elif ftl.has_pf:
+        print 'Please select regions to mask from background determination'
+        mask_regions = bkg.get_mask_regions(objlist[0])
+        msk_lo,msk_hi,y_max = mask_regions
+        sample = '0:'
+        for ii in range(len(msk_lo)):
+            sample += '{0:d},{1:d}:'.format(msk_lo[ii],min(y_max,msk_hi[ii]))
+        sample += '{0:d}'.format(y_max)
+        for bkgobj in objlist:
             iraf.background(input=bkgobj,output='k'+bkgobj,interactive='No',
                             sample=sample)
     else:

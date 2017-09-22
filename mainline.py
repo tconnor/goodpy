@@ -397,7 +397,7 @@ def run_step_five():
         if obj in pm.already_calibrated:
             continue
         stdidx = pm.calib_stars.index(standard_match[obj[0]])
-        irf_stp.background(obj)
+        irf_stp.background(obj,unique=False)
         irf_stp.flux_calibrate(obj,stdidx)
         if pm.extr1d:
             irf_stp.apall_sci(obj)
