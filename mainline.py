@@ -340,6 +340,9 @@ def run_step_three():
 
 def run_step_four():
     '''Make Standard star maps'''
+    print 'Select each standard star'
+    print 'by selecting all of the observations for each standard star'
+    print 'star-by-star.'
     caption = 'Select individual standard stars'
     pm.super_std = gui.break_apart(pm.std_list,title='Standard Selection',
                                 caption=caption)
@@ -353,7 +356,16 @@ def run_step_four():
                                          caption_tail=' Star Name',
                                          title='Star Name')[stdl[0]]
         irf_stp.standard(stdl,std_name,stdidx)
-        pm.calib_stars.append(std_name)
+        if std_name not in pm.calib_stars:
+            pm.calib_stars.append(std_name)
+        else:
+            str_idx = 2
+            while True:
+                atmpt = std_name +'_'+ str(str_idx)
+                if atmpt not in pm.calib_stars:
+                    pm.calib_stars.append(atmpt)
+                    break
+                str_idx +=1
         irf_stp.sensfunc(stdidx)
     f_man.make_and_move(pm.std_list,'TRANS')
     f_man.prepend_list(pm.std_list,'k')
