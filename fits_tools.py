@@ -272,3 +272,17 @@ def fix_quartz_banding(qtzfile,gsize_1 = 3, gsize_2 = 120):
     outdata = largescale
     pf.writeto('w'+qtzfile,outdata,clobber=True)
     return
+
+def get_threshold(arc,sigclip=1):
+    '''Computes a threshold parameter for {auto/re/}identify'''
+    if has_pf:
+        data = pf.open(arc)[0].data
+        mn = np.median(data[:,500:600])
+        sg = np.std(data[:,500:600])
+    else:
+        stats = iraf.imstat(arc+'[*,500:600]',Stdout=1).split()[2]
+        mn = float(stats[2])
+        sg = float(stats[3])
+    return sigclip * sg
+
+        

@@ -107,7 +107,7 @@ def set_autoidentify_calibration(autoidentify):
     autoidentify.units = 'angstroms' #Coordinate units
     autoidentify.interactive = 'YES' # Examine identifications interactively?
     autoidentify.section = 'middle line' #Section to apply to 2D images
-    autoidentify.nsum = 10 # Number of lines/columns/bands to sum in 2D/3D images
+    autoidentify.nsum = 15 # Number of lines/columns/bands to sum in 2D/3D images
     autoidentify.ftype = 'emission' #Feature type
     autoidentify.fwidth = 15 # Feature width in pixels
     autoidentify.cradius = 5.0 #Centering radius in pixels
