@@ -83,7 +83,7 @@ def set_aidpars_calibration(aidpars):
     #INDEF translates to -0.1 which corresponds to a search radius of 10%
     #of the estimated dispersion range
     aidpars.cdsearch = 'INDEF' #Coordinate interval search radius
-    aidpars.ntarget = 100 #Number of target features
+    aidpars.ntarget = 50 #Number of target features
     aidpars.npattern = 7 #Number of lines in patterns
     aidpars.nneighbors = 10 #Number of nearest neighbors in patterns
     aidpars.nbins = 6 #Maximum number of search bins
@@ -94,7 +94,7 @@ def set_aidpars_calibration(aidpars):
     aidpars.sigma = 0.05 #Sigma of line centering (pixels)
     aidpars.minratio = 0.1 #Minimum spacing ratio to use
     aidpars.rms = 0.2 #RMS goal (fwidths)
-    aidpars.fmatch = 0.2 #Matching goal (fraction unmatched)
+    aidpars.fmatch = 0.1 #Matching goal (fraction unmatched)
     aidpars.debug = '' #Print debugging information -- for developer
     return
 
@@ -103,7 +103,7 @@ def set_autoidentify_calibration(autoidentify):
     #autoidentify.images = None Images containing features to be identified
     #autoidentify.crval = None Approximate coordinate (at reference pixel)
     #autoidentify.cdelt = None Approximate dispersion
-    autoidentify.coordlist = 'linelists$fear.dat' # Coordinate list
+    autoidentify.coordlist = 'linelist'#'linelists$fear.dat' # Coordinate list
     autoidentify.units = 'angstroms' #Coordinate units
     autoidentify.interactive = 'YES' # Examine identifications interactively?
     autoidentify.section = 'middle line' #Section to apply to 2D images
@@ -158,7 +158,7 @@ def set_reidentify_calibration(reidentify):
     reidentify.refit = 'Yes'
     reidentify.trace = 'Yes'
     reidentify.step = 50
-    reidentify.nsum = 5
+    reidentify.nsum = 15
     reidentify.shift = 0
     reidentify.search = 0
     reidentify.nlost = 10

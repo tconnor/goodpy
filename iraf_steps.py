@@ -164,14 +164,16 @@ def make_lambda_solution_auto(arc_list,fcnamedict,dont_ident_list,binning=1.):
         first_value = int(first_value_str[1:].split(':')[0])
         binning = ftl.get_binning(arc,bindefault=binning)
         thresh = ftl.get_threshold(arc)
-        print thresh
         thresh *= float(iraf.autoidentify.nsum)
-        print thresh
         iraf.aidpars.crpix = int(2048. / binning) - first_value
         fit_crval, fit_cdelt = ftl.guess_crval_crdelt(arc,binning=binning)
         print fit_crval
         print fit_cdelt
         print iraf.aidpars.crpix
+        #if len(dont_ident_list) > 0:
+        #    iraf.aidpars.refspec = dont_ident_list[0]
+        #else:
+        #    iraf.aidpars.refspec = ''
         iraf.autoidentify(images=arc,crval=fit_crval,cdelt=fit_cdelt,
                           threshold=thresh)
         iraf.reidentify(reference=arc,images=arc,threshold=thresh)
