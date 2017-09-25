@@ -15,13 +15,13 @@ def dump(filename = 'goodpy_params.py'):
     outf.close()
     return
 
-def dump_mode(direc,file_list,obj_list,type_dict):
+def dump_mode(direc,file_list,obj_list,typedict):
     dump(filename='{0}/goodpy_params.py'.format(direc))
     write_param('file_list',file_list,p_type='list',
                 outname='{0}/goodpy_params.py'.format(direc))
     write_param('obj_list',obj_list,p_type='list',
                 outname='{0}/goodpy_params.py'.format(direc))
-    write_param('type_dict',type_dict,p_type='dict',
+    write_param('typedict',typedict,p_type='dict',
                 outname='{0}/goodpy_params.py'.format(direc))
     write_param('step_one_a','True',p_type='boolean',
                 outname='{0}/goodpy_params.py'.format(direc))

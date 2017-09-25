@@ -109,6 +109,8 @@ def run_step_one_a():
     f_man.bell() #Alert user
     need_modes = gui.get_boolean('Are there multiple observing modes?')
     if need_modes:
+        [tmp_a,tmp_b,tmp_c] = f_man.type_list(pm.file_list,pm.typedict)
+        pm.file_list = sorted(tmp_a + tmp_b + tmp_c)
         file_modes, nmodes = ftl.guess_mode(pm.file_list)
         nmodes_user = gui.user_int_input(guess=1,title='Number of Modes')
         if nmodes_user > nmodes:
