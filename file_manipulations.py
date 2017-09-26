@@ -268,3 +268,14 @@ def write_linelist(outfile,lamp='fear'):
     outfile.close()
 
     
+def is_datafile_good(path_to_datafile):
+    if not check_for_file(path_to_datafile):
+        return False
+    with open(path_to_datafile,'r') as f:
+        for line in f:
+            try:
+                foo = float(line.split()[0])
+            except:
+                continue
+            return True
+    return False

@@ -320,7 +320,8 @@ def run_step_three():
     else:
         dont_ident = pm.already_identified
 
-    irf_stp.make_lambda_solution_auto(pm.arc_list,pm.arc_fc_dict,dont_ident)
+    irf_stp.make_lambda_solution_auto(pm.arc_list,pm.arc_fc_dict,dont_ident,
+                                      f_man.is_datafile_good)
     lgf.write_param('already_identified',pm.arc_list,p_type='list')
     
     guesses = ftl.guess_dxvals(pm.science_list[0])

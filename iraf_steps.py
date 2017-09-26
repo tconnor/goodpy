@@ -3,7 +3,8 @@ import iraf_parameters as irf_prm
 import fits_tools as ftl
 if ftl.has_pf:
     import background_select as bkg
-    
+import GUI_functions as gui
+
 def gui_alert():
     print 'An IRAF GUI has been opened and requires your input'
     
@@ -150,7 +151,8 @@ def make_lambda_solution(arc_list,fcnamedict,dont_ident_list):
         dont_ident_list.append(arc)
     return
 
-def make_lambda_solution_auto(arc_list,fcnamedict,dont_ident_list,binning=1.):
+def make_lambda_solution_auto(arc_list,fcnamedict,dont_ident_list,
+                              is_datafile_good,binning=1.):
     irf_prm.set_aidpars_calibration(iraf.aidpars)
     irf_prm.set_autoidentify_calibration(iraf.autoidentify)
     irf_prm.set_identify_calibration(iraf.identify)
@@ -167,18 +169,32 @@ def make_lambda_solution_auto(arc_list,fcnamedict,dont_ident_list,binning=1.):
         thresh *= float(iraf.autoidentify.nsum)
         iraf.aidpars.crpix = int(2048. / binning) - first_value
         fit_crval, fit_cdelt = ftl.guess_crval_crdelt(arc,binning=binning)
-        print fit_crval
-        print fit_cdelt
-        print iraf.aidpars.crpix
-        #if len(dont_ident_list) > 0:
-        #    iraf.aidpars.refspec = dont_ident_list[0]
-        #else:
-        #    iraf.aidpars.refspec = ''
-        iraf.autoidentify(images=arc,crval=fit_crval,cdelt=fit_cdelt,
-                          threshold=thresh)
-        iraf.reidentify(reference=arc,images=arc,threshold=thresh)
-        iraf.fitcoords(images=arc[:-5],fitname=fcnamedict[arc])
-        dont_ident_list.append(arc)
+        while True:
+            iraf.autoidentify(images=arc,crval=fit_crval,
+                              cdelt=fit_cdelt,threshold=thresh)
+            print 'database/'+'id'+arc[:-5]
+            if not is_datafile_good('database/'+'id'+arc[:-5]):
+                try_again = gui.get_boolean('Tweak auto-ident params')
+            else:
+                try_again = False
+            if try_again:
+                print "Auto-Ident failed. Tweak the parameters"
+                print "and see if you can make it work."
+                print "crval = {0}".format(fit_crval)
+                print "cdelt = {0}".format(fit_cdelt)
+                print "crpix = {0}".format(iraf.aidpars.crpix)
+                print "threshold = {0}".format(thresh)
+                print "Decreasing threshold seems to work best."
+                print "But also consider aidpars.fmatch"
+                iraf.epar(iraf.autoidentify)
+                thresh = iraf.autoidentify.threshold
+                fit_crval = iraf.autoidentify.crval
+                fit_cdelt = iraf.autoidentify.cdelt
+            else:
+                iraf.reidentify(reference=arc,images=arc,threshold=thresh)
+                iraf.fitcoords(images=arc[:-5],fitname=fcnamedict[arc])
+                dont_ident_list.append(arc)
+                break
     return
 
 

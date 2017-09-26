@@ -72,6 +72,28 @@ def set_response(response):
     response.grow = 0
     return
 
+def set_identify_calibration(identify):
+    #noao>twodspec>longslit>identify
+    identify.section = 'middle line'
+    identify.databas = 'database'
+    identify.coordli = 'linelist'
+    identify.nsum = 10
+    identify.match = 50
+    identify.maxfeat = 50
+    identify.zwidth = 100
+    identify.ftype = 'emission'
+    identify.fwidth = 15
+    identify.cradius = 5
+    identify.thresho = 10
+    identify.minsep = 10
+    identify.function = 'spline3'
+    identify.order = 3
+    identify.niterat = 0
+    identify.low_rej = 3
+    identify.high_re = 3
+    identify.grow = 0
+    return
+
 def set_aidpars_calibration(aidpars):
     #noao>twodspec>longslit>aidpars
     aidpars.reflist = 'linelist' #Reference coordinate list
@@ -89,7 +111,7 @@ def set_aidpars_calibration(aidpars):
     aidpars.nbins = 6 #Maximum number of search bins
     aidpars.ndmax = 500 #Maximum number of dispersions to evaluate
     aidpars.aidord = 3 #Dispersion fitting order 3 = Quadratic
-    aidpars.maxnl = 0.02 #Maximum non-linearity
+    aidpars.maxnl = 0.035 #Maximum non-linearity
     aidpars.nfound = 6 #Minimum number of lines in final solution
     aidpars.sigma = 0.05 #Sigma of line centering (pixels)
     aidpars.minratio = 0.1 #Minimum spacing ratio to use
@@ -127,27 +149,6 @@ def set_autoidentify_calibration(autoidentify):
     autoidentify.verbose = 'no' # Verbose output?
     return
 
-def set_identify_calibration(identify):
-    #noao>twodspec>longslit>identify
-    identify.section = 'middle line'
-    identify.databas = 'database'
-    identify.coordli = 'linelist'
-    identify.nsum = 10
-    identify.match = 50
-    identify.maxfeat = 50
-    identify.zwidth = 100
-    identify.ftype = 'emission'
-    identify.fwidth = 15
-    identify.cradius = 5
-    identify.thresho = 10
-    identify.minsep = 10
-    identify.function = 'spline3'
-    identify.order = 3
-    identify.niterat = 0
-    identify.low_rej = 3
-    identify.high_re = 3
-    identify.grow = 0
-    return
 
 def set_reidentify_calibration(reidentify):
     #noao>twodspec>longslit>reidentify
