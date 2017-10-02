@@ -71,14 +71,16 @@ def correct_artifact(wnartifact,qtz):
     iraf.imarith(operand1=qtz,operand2=wnartifact,op='/',result='a'+qtz)
     return
 
-def normalize_quartzes(quartz_list,dont_norm_list,fix_banding):
+def normalize_quartzes(quartz_list,dont_norm_list,fix_banding,run_interactive):
     '''Normalize files in quartz_list using noao>twodspec>longslit>response'''
     irf_prm.set_response(iraf.response)
+    if run_interactive: inter = 'Yes'
+    else: inter = 'No'
     for quartz in quartz_list:
         if quartz in dont_norm_list:
             continue
         iraf.response(calibrat=quartz,normaliz=quartz,response='n'+quartz,
-                      interactive='No')
+                      interactive=inter)
         if fix_banding:
             ftl.fix_quartz_banding('n'+quartz)
         dont_norm_list.append(quartz)
@@ -170,6 +172,8 @@ def make_lambda_solution_auto(arc_list,fcnamedict,dont_ident_list,
         iraf.aidpars.crpix = int(2048. / binning) - first_value
         fit_crval, fit_cdelt = ftl.guess_crval_crdelt(arc,binning=binning)
         while True:
+            print iraf.autoidentify.crval
+            print iraf.autoidentify.cdelt
             iraf.autoidentify(images=arc,crval=fit_crval,
                               cdelt=fit_cdelt,threshold=thresh)
             print 'database/'+'id'+arc[:-5]
