@@ -28,13 +28,22 @@ def reduce_dimensions(filename):
 def bias_correct(file_list,xmin='18',xmax='4111',ymin='350',
                  ymax='1570',bindefault=1):
     irf_prm.set_ccdproc(iraf.ccdproc)
-    biassecs = {1:'[4114:4142,1:1896]',2:'[4114:4142,1:1896]',
-                3:'[4114:4142,1:1896]',4:'[4114:4142,1:1896]'} #NEED UPDATED
+    biassecs = {'BLUE':{1:'[4114:4142,1:1896]',2:'[4114:4142,1:1896]',
+                        3:'[4114:4142,1:1896]',4:'[4114:4142,1:1896]'},
+                        'RED':{1:'[6:50,1:1896]',2:'[6:50,1:1896]',
+                               3:'[6:50,1:1896]',4:'[6:50,1:1896]'}}
+         #NEED UPDATED
     #iraf.ccdproc.biassec = biassecs[binsize]
     iraf.ccdproc.trimsec = '['+xmin+':'+xmax+','+ymin+':'+ymax+']'
     for ff in file_list:
+        instmode = ftl.get_instrument_mode(ff)
+        print 'DEBUG: I believe {} used the {} CCD'.format(ff,instmode)
+        if instmode == 'RED':
+            iraf.ccdproc.trimsec = '[51:4141,447:1686']
+        else:
+            iraf.ccdproc.trimsec = '['+xmin+':'+xmax+','+ymin+':'+ymax+']'
         binsize = ftl.get_binning(ff,bindefault=bindefault)
-        iraf.ccdproc.biassec = biassecs[binsize]
+        iraf.ccdproc.biassec = biassecs[instmode[binsize]]
         output = 'b'+ff
         iraf.ccdproc(images=ff,output=output,ccdtype = "")
     return

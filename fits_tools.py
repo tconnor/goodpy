@@ -224,7 +224,10 @@ def get_value_pyraf(filename,paramname):
 
 def get_value_pyfits(filename,paramname):
     with pf.open(filename,mode='readonly') as hdulist:
-        return hdulist[0].header[paramname]
+        try:
+            return hdulist[0].header[paramname]
+        except KeyError:
+            return 'NullReturn'
 
 def get_value(filename,paramname):
     if has_pf:
@@ -286,3 +289,13 @@ def get_threshold(arc,sigclip=1):
     return sigclip * sg
 
         
+def get_instrument_mode(filename):
+    instconf = get_value(filename,'INSTCONF')
+    if instconf == 'NullReturn':
+        return 'BLUE' #Before Configuration being written
+    elif instconf.lower == 'red':
+        return 'RED'
+    elif instconf.lower == 'blue':
+        return 'BLUE'
+    else:
+        return 'BLUE'
