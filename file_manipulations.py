@@ -241,8 +241,10 @@ def write_linelist(outfile,lamp='fear'):
     if lamp == 'fear':
         #These lines are not confirmed as being prominent in SOAR spectra
         lines = ['4259.3618','4383.5444','4481.8105']
-        lines = ['7272.9359','7383.9805','7503.8691','7635.1060',
-                 '7723.761','7948.1763','8264.5225','8408.2100','8424.6475']
+        lines = ['7272.9359','7383.9805','7503.8691','7514.6518','7635.1060',
+                 '7723.761','7948.1763','8014.7857','8103.6931','8115.3110',
+                 '8264.5225','8408.2100','8424.6475','8521.4422','8667.9442',
+                 '8761.6862','8799.0875','8849.91']
         #These lines were identified as prominent in a SOAR spectrum and
         #not peaks made of small line bunches on the NOAO Spectral Atlas
         #'4307.9015',,'7514.6519'
