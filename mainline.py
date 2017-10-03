@@ -251,7 +251,7 @@ def run_step_two_b():
             pm.fix_quartz_banding = False
         else:
             pm.fix_quartz_banding = gui.get_boolean(checkstring)
-    run_interactive = gui.get_boolean('Normalize Quartzes Interavtively?')
+    run_interactive = gui.get_boolean('Normalize Quartzes Interactively?')
     irf_stp.normalize_quartzes(pm.quartz_list,dont_norm,pm.fix_quartz_banding,
                                run_interactive)
     lgf.write_param('already_normalized',pm.quartz_list,p_type='list')
