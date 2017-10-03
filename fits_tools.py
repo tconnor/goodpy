@@ -291,11 +291,12 @@ def get_threshold(arc,sigclip=1):
         
 def get_instrument_mode(filename):
     instconf = get_value(filename,'INSTCONF')
+    print instconf
     if instconf == 'NullReturn':
         return 'BLUE' #Before Configuration being written
-    elif instconf.lower == 'red':
+    elif instconf.lower() == 'red':
         return 'RED'
-    elif instconf.lower == 'blue':
+    elif instconf.lower() == 'blue':
         return 'BLUE'
     else:
         return 'BLUE'
