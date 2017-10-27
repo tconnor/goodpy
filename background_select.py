@@ -289,8 +289,8 @@ def get_mask_regions(infile,median_binwidth=20,sum_binwidth=20,
 
 
 def stack_median(inarray,binwidth=20):
-    steps = np.shape(inarray)[1]/binwidth
-    steps = int(np.floor(steps))
+    steps_a = np.shape(inarray)[1]/binwidth
+    steps = int(np.floor(steps_a))
     output = []
     for ss in range(steps):
         bgn_i, end_i = ss * binwidth, (ss+1) * binwidth
@@ -298,20 +298,22 @@ def stack_median(inarray,binwidth=20):
         stack /= np.median(stack)
         output.append(stack)
     bgn_i= (ss+1) * binwidth
-    output.append(np.median(inarray[:,bgn_i:],axis=1))
+    if steps_a > steps:
+        output.append(np.median(inarray[:,bgn_i:],axis=1))
     output = np.array(output)
     return output
 
 def stack_sum(inarray,binwidth=20):
-    steps = np.shape(inarray)[1]/binwidth
-    steps = int(np.floor(steps))
+    steps_a = np.shape(inarray)[1]/binwidth
+    steps = int(np.floor(steps_a))
     output = []
     for ss in range(steps):
         bgn_i, end_i = ss * binwidth, (ss+1) * binwidth
         stack = np.sum(inarray[:,bgn_i:end_i],axis=1)
         output.append(stack)
     bgn_i= (ss+1) * binwidth
-    output.append(np.median(inarray[:,bgn_i:],axis=1))
+    if steps_a > steps:
+        output.append(np.median(inarray[:,bgn_i:] * binwidth,axis=1))
     output = np.array(output)
     return output
 
